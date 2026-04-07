@@ -1,0 +1,100 @@
+{
+    "name": "Akreditasi Cerdas",
+    "short_name": "Akre",
+    "description": "Sistem Akreditasi Perguruan Tinggi Berbasis AI",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#ffffff",
+    "theme_color": "#8b5cf6",
+    "orientation": "portrait-primary",
+    "scope": "/",
+    "lang": "id-ID",
+    "categories": ["education", "productivity"],
+    "icons": [
+        {
+            "src": "/images/icons/icon-72x72.png",
+            "sizes": "72x72",
+            "type": "image/png",
+            "purpose": "maskable any"
+        },
+        {
+            "src": "/images/icons/icon-96x96.png",
+            "sizes": "96x96",
+            "type": "image/png",
+            "purpose": "maskable any"
+        },
+        {
+            "src": "/images/icons/icon-128x128.png",
+            "sizes": "128x128",
+            "type": "image/png",
+            "purpose": "maskable any"
+        },
+        {
+            "src": "/images/icons/icon-144x144.png",
+            "sizes": "144x144",
+            "type": "image/png",
+            "purpose": "maskable any"
+        },
+        {
+            "src": "/images/icons/icon-152x152.png",
+            "sizes": "152x152",
+            "type": "image/png",
+            "purpose": "maskable any"
+        },
+        {
+            "src": "/images/icons/icon-192x192.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "maskable any"
+        },
+        {
+            "src": "/images/icons/icon-384x384.png",
+            "sizes": "384x384",
+            "type": "image/png",
+            "purpose": "maskable any"
+        },
+        {
+            "src": "/images/icons/icon-512x512.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "maskable any"
+        }
+    ],
+    "shortcuts": [
+        {
+            "name": "Dashboard",
+            "short_name": "Dashboard",
+            "description": "Lihat dashboard akreditasi",
+            "url": "/dashboard",
+            "icons": [{ "src": "/images/icons/dashboard-96x96.png", "sizes": "96x96" }]
+        },
+        {
+            "name": "Template Baru",
+            "short_name": "Template",
+            "description": "Buat template dokumen baru",
+            "url": "/templates/create",
+            "icons": [{ "src": "/images/icons/template-96x96.png", "sizes": "96x96" }]
+        },
+        {
+            "name": "Dokumen Saya",
+            "short_name": "Dokumen",
+            "description": "Kelola dokumen akreditasi",
+            "url": "/documents",
+            "icons": [{ "src": "/images/icons/document-96x96.png", "sizes": "96x96" }]
+        }
+    ],
+    "screenshots": [
+        {
+            "src": "/images/screenshots/dashboard-mobile.png",
+            "sizes": "390x844",
+            "type": "image/png",
+            "form_factor": "narrow"
+        },
+        {
+            "src": "/images/screenshots/dashboard-desktop.png",
+            "sizes": "1280x720",
+            "type": "image/png",
+            "form_factor": "wide"
+        }
+    ]
+}

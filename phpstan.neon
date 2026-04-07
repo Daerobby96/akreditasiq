@@ -1,0 +1,36 @@
+parameters:
+    level: 8
+    paths:
+        - app
+        - tests
+    excludePaths:
+        - vendor/*
+        - storage/*
+        - bootstrap/*
+    checkMissingIterableValueType: false
+    checkGenericClassInNonGenericObjectType: false
+
+    ignoreErrors:
+        # Laravel specific ignores
+        - '#Call to an undefined method .*::make\(\)#'
+        - '#Access to an undefined property .*::\$[a-zA-Z_][a-zA-Z0-9_]*#'
+        - '#Method .* should return .* but returns .*#'
+        - '#Parameter .* of method .* expects .* but .* given#'
+        - '#Cannot call method .* on mixed#'
+        - '#Variable .* might not be defined#'
+
+        # Livewire specific ignores
+        - '#Call to an undefined method .*::mount\(\)#'
+        - '#Call to an undefined method .*::render\(\)#'
+        - '#Property .* does not exist#'
+
+        # Test specific ignores
+        - '#Call to an undefined method .*::assert.*#'
+        - '#Method .* should return .* but returns void#'
+
+    bootstrapFiles:
+        - bootstrap/app.php
+
+    editorUrl: 'phpstorm://open?file=%%file%%&line=%%line%%'
+
+    errorFormat: table
