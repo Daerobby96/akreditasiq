@@ -33,7 +33,7 @@
                 <span class="text-xs font-bold text-indigo-500">STANDAR</span>
             </div>
             <h3 class="text-3xl font-bold text-slate-900 dark:text-white">{{ $totalCriteria }}</h3>
-            <p class="text-sm font-medium text-slate-500">Kriteria BAN-PT</p>
+            <p class="text-sm font-medium text-slate-500">Kriteria {{ strtoupper($prodi->lam_type) }}</p>
         </div>
 
         <!-- Documents Uploaded -->
@@ -144,25 +144,38 @@
             <div class="p-6 glass-card">
                 <h3 class="text-lg font-bold text-slate-900 dark:text-white mb-4 flex items-center">
                     <span class="w-2 h-2 rounded-full bg-purple-500 mr-2"></span>
-                    Progress Kriteria BAN-PT
+                    Progress Kriteria {{ strtoupper($prodi->lam_type) }}
                 </h3>
                 <div id="criteria-progress-chart" class="h-80"></div>
             </div>
         </div>
             
-            <!-- AI Insights Panel -->
             <div class="p-6 glass-card">
                 <h3 class="text-lg font-bold text-slate-900 dark:text-white mb-4 flex items-center">
                     <span class="w-2 h-2 rounded-full bg-indigo-500 mr-2 animate-pulse"></span>
                     Smart Insights
                 </h3>
                 <div class="space-y-4">
-                    <div class="p-3 bg-indigo-50/50 dark:bg-indigo-900/10 border border-indigo-500/10 rounded-xl">
-                        <p class="text-[11px] text-slate-600 dark:text-slate-400 font-medium">Kriteria C9 menunjukkan potensi skor maksimal tinggi berdasarkan analisis luaran 3 tahun terakhir.</p>
-                    </div>
-                    <div class="p-3 bg-amber-50/50 dark:bg-amber-900/10 border border-amber-500/10 rounded-xl">
-                        <p class="text-[11px] text-slate-600 dark:text-slate-400 font-medium">Perlu perhatian pada Kriteria C4: Sumber Daya Manusia. Masih kekurangan bukti sertifikasi kompetensi dosen.</p>
-                    </div>
+                    @forelse($insights as $insight)
+                        <div class="p-4 rounded-2xl border flex items-start space-x-3 {{ 
+                            $insight['type'] === 'success' ? 'bg-emerald-50/50 border-emerald-500/10 text-emerald-700' : (
+                            $insight['type'] === 'warning' ? 'bg-amber-50/50 border-amber-500/10 text-amber-700' : 
+                            'bg-rose-50/50 border-rose-500/10 text-rose-700')
+                        }}">
+                            <div class="mt-0.5">
+                                @if($insight['type'] === 'success')
+                                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
+                                @else
+                                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path></svg>
+                                @endif
+                            </div>
+                            <p class="text-xs font-bold leading-relaxed">{{ $insight['message'] }}</p>
+                        </div>
+                    @empty
+                        <div class="p-8 text-center border-2 border-dashed border-slate-100 dark:border-slate-800 rounded-2xl">
+                            <p class="text-xs text-slate-400 italic">Belum ada insight baru. Kumpulkan lebih banyak data dokumen untuk mendapatkan saran cerdas.</p>
+                        </div>
+                    @endforelse
                 </div>
             </div>
         </div>
@@ -170,256 +183,104 @@
 
     <!-- Analytics Charts JavaScript -->
     <script>
-        document.addEventListener('livewire:loaded', function () {
-            @this.on('refreshCharts', () => {
-                initializeCharts();
-            });
+        document.addEventListener('livewire:navigated', () => {
+            initializeCharts();
+        });
 
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeCharts();
+        });
+
+        // Re-init on Livewire updates
+        window.addEventListener('contentChanged', event => {
             initializeCharts();
         });
 
         function initializeCharts() {
+            // Hilangkan chart lama jika ada untuk menghindari duplikasi
+            const chartContainers = [
+                "#score-trend-chart", "#status-distribution-chart", 
+                "#workflow-activity-chart", "#ai-heatmap-chart", 
+                "#criteria-progress-chart"
+            ];
+            
+            chartContainers.forEach(selector => {
+                const el = document.querySelector(selector);
+                if (el) el.innerHTML = ''; 
+            });
+
             // Score Trend Chart
             const scoreTrendData = @json($scoreTrendData);
-            if (scoreTrendData.length > 0) {
+            if (scoreTrendData && scoreTrendData.length > 0) {
                 const scoreTrendOptions = {
                     series: [{
-                        name: 'Skor Rata-rata',
+                        name: 'Skor AI',
                         data: scoreTrendData.map(item => item.score)
                     }],
-                    chart: {
-                        type: 'line',
-                        height: 250,
-                        toolbar: { show: false },
-                        background: 'transparent'
-                    },
+                    chart: { type: 'area', height: 250, toolbar: { show: false }, zoom: { enabled: false } },
                     colors: ['#10B981'],
-                    stroke: {
-                        curve: 'smooth',
-                        width: 3
-                    },
-                    markers: {
-                        size: 6,
-                        colors: ['#10B981'],
-                        strokeColors: '#fff',
-                        strokeWidth: 2
-                    },
-                    xaxis: {
-                        categories: scoreTrendData.map(item => item.month),
-                        labels: {
-                            style: {
-                                colors: '#64748B'
-                            }
-                        }
-                    },
-                    yaxis: {
-                        min: 0,
-                        max: 4,
-                        labels: {
-                            style: {
-                                colors: '#64748B'
-                            }
-                        }
-                    },
-                    grid: {
-                        borderColor: '#E2E8F0',
-                        strokeDashArray: 3
-                    },
-                    tooltip: {
-                        theme: 'dark'
-                    }
+                    stroke: { curve: 'smooth', width: 3 },
+                    fill: { type: 'gradient', gradient: { shadeIntensity: 1, opacityFrom: 0.4, opacityTo: 0.1 } },
+                    xaxis: { categories: scoreTrendData.map(item => item.month) },
+                    yaxis: { min: 0, max: 4, tickAmount: 4 },
+                    tooltip: { theme: 'dark' }
                 };
-
-                const scoreTrendChart = new ApexCharts(document.querySelector("#score-trend-chart"), scoreTrendOptions);
-                scoreTrendChart.render();
+                new ApexCharts(document.querySelector("#score-trend-chart"), scoreTrendOptions).render();
             }
 
             // Status Distribution Chart
             const statusData = @json($statusDistributionData);
-            if (statusData.length > 0) {
+            if (statusData && statusData.length > 0) {
                 const statusOptions = {
                     series: statusData.map(item => item.count),
-                    chart: {
-                        type: 'donut',
-                        height: 250,
-                        background: 'transparent'
-                    },
+                    chart: { type: 'donut', height: 250 },
                     labels: statusData.map(item => item.status),
                     colors: statusData.map(item => item.color),
-                    legend: {
-                        position: 'bottom',
-                        labels: {
-                            colors: '#64748B'
-                        }
-                    },
-                    tooltip: {
-                        theme: 'dark'
-                    },
-                    plotOptions: {
-                        pie: {
-                            donut: {
-                                size: '65%'
-                            }
-                        }
-                    }
+                    legend: { position: 'bottom' },
+                    tooltip: { theme: 'dark' }
                 };
-
-                const statusChart = new ApexCharts(document.querySelector("#status-distribution-chart"), statusOptions);
-                statusChart.render();
+                new ApexCharts(document.querySelector("#status-distribution-chart"), statusOptions).render();
             }
 
             // Workflow Activity Chart
             const workflowData = @json($workflowActivityData);
-            if (workflowData.length > 0) {
+            if (workflowData && workflowData.length > 0) {
                 const workflowOptions = {
-                    series: [{
-                        name: 'Aktivitas',
-                        data: workflowData.map(item => item.activities)
-                    }],
-                    chart: {
-                        type: 'bar',
-                        height: 250,
-                        toolbar: { show: false },
-                        background: 'transparent'
-                    },
+                    series: [{ name: 'Aktivitas', data: workflowData.map(item => item.activities) }],
+                    chart: { type: 'bar', height: 250, toolbar: { show: false } },
                     colors: ['#EC4899'],
-                    plotOptions: {
-                        bar: {
-                            borderRadius: 4,
-                            columnWidth: '60%'
-                        }
-                    },
-                    xaxis: {
-                        categories: workflowData.map(item => item.date),
-                        labels: {
-                            style: {
-                                colors: '#64748B'
-                            }
-                        }
-                    },
-                    yaxis: {
-                        labels: {
-                            style: {
-                                colors: '#64748B'
-                            }
-                        }
-                    },
-                    grid: {
-                        borderColor: '#E2E8F0',
-                        strokeDashArray: 3
-                    },
-                    tooltip: {
-                        theme: 'dark'
-                    }
+                    xaxis: { categories: workflowData.map(item => item.date) },
+                    tooltip: { theme: 'dark' }
                 };
-
-                const workflowChart = new ApexCharts(document.querySelector("#workflow-activity-chart"), workflowOptions);
-                workflowChart.render();
+                new ApexCharts(document.querySelector("#workflow-activity-chart"), workflowOptions).render();
             }
 
             // AI Analysis Heatmap
             const heatmapData = @json($aiAnalysisHeatmap);
-            if (heatmapData.length > 0) {
+            if (heatmapData && heatmapData.length > 0) {
                 const heatmapOptions = {
-                    series: heatmapData.map(item => ({
-                        name: item.range,
-                        data: [item.count]
-                    })),
-                    chart: {
-                        type: 'bar',
-                        height: 250,
-                        toolbar: { show: false },
-                        background: 'transparent'
-                    },
-                    colors: heatmapData.map(item => item.color),
-                    plotOptions: {
-                        bar: {
-                            horizontal: true,
-                            barHeight: '60%'
-                        }
-                    },
-                    xaxis: {
-                        categories: heatmapData.map(item => item.range),
-                        labels: {
-                            style: {
-                                colors: '#64748B'
-                            }
-                        }
-                    },
-                    yaxis: {
-                        labels: {
-                            style: {
-                                colors: '#64748B'
-                            }
-                        }
-                    },
-                    grid: {
-                        borderColor: '#E2E8F0',
-                        strokeDashArray: 3
-                    },
-                    tooltip: {
-                        theme: 'dark'
-                    }
+                    series: [{ name: 'Jumlah Dokumen', data: heatmapData.map(item => item.count) }],
+                    chart: { type: 'bar', height: 250, toolbar: { show: false } },
+                    colors: ['#6366F1'],
+                    plotOptions: { bar: { horizontal: true, distributed: true } },
+                    xaxis: { categories: heatmapData.map(item => item.range) },
+                    tooltip: { theme: 'dark' }
                 };
-
-                const heatmapChart = new ApexCharts(document.querySelector("#ai-heatmap-chart"), heatmapOptions);
-                heatmapChart.render();
+                new ApexCharts(document.querySelector("#ai-heatmap-chart"), heatmapOptions).render();
             }
 
             // Criteria Progress Chart
             const criteriaData = @json($criteriaProgressData);
-            if (criteriaData.length > 0) {
+            if (criteriaData && criteriaData.length > 0) {
                 const criteriaOptions = {
-                    series: [{
-                        name: 'Progress (%)',
-                        data: criteriaData.map(item => item.progress)
-                    }],
-                    chart: {
-                        type: 'radar',
-                        height: 320,
-                        toolbar: { show: false },
-                        background: 'transparent'
-                    },
+                    series: [{ name: 'Progress (%)', data: criteriaData.map(item => item.progress) }],
+                    chart: { type: 'radar', height: 320, toolbar: { show: false } },
                     colors: ['#8B5CF6'],
-                    xaxis: {
-                        categories: criteriaData.map(item => item.kriteria),
-                        labels: {
-                            style: {
-                                colors: '#64748B'
-                            }
-                        }
-                    },
-                    yaxis: {
-                        min: 0,
-                        max: 100,
-                        labels: {
-                            style: {
-                                colors: '#64748B'
-                            }
-                        }
-                    },
-                    markers: {
-                        size: 4,
-                        colors: ['#8B5CF6'],
-                        strokeColors: '#fff',
-                        strokeWidth: 2
-                    },
-                    tooltip: {
-                        theme: 'dark',
-                        y: {
-                            formatter: function(val) {
-                                return val + '%';
-                            }
-                        }
-                    },
-                    grid: {
-                        borderColor: '#E2E8F0',
-                        strokeDashArray: 3
-                    }
+                    xaxis: { categories: criteriaData.map(item => item.kriteria) },
+                    yaxis: { min: 0, max: 100, tickAmount: 5 },
+                    tooltip: { theme: 'dark' }
                 };
-
-                const criteriaChart = new ApexCharts(document.querySelector("#criteria-progress-chart"), criteriaOptions);
-                criteriaChart.render();
+                new ApexCharts(document.querySelector("#criteria-progress-chart"), criteriaOptions).render();
             }
         }
     </script>

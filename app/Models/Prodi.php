@@ -11,6 +11,11 @@ class Prodi extends Model
         'kode',
         'jenjang',
         'lam_type',
+        'peringkat_saat_ini',
+        'tanggal_kadaluarsa',
+        'target_submit',
+        'status_akreditasi',
+        'target_peringkat',
     ];
 
     public function dokumens()

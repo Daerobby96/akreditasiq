@@ -16,4 +16,9 @@ class Kriteria extends Model
     {
         return $this->hasMany(Dokumen::class);
     }
+
+    public function narasis()
+    {
+        return $this->hasMany(Narasi::class);
+    }
 }

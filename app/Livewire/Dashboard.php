@@ -14,6 +14,7 @@ class Dashboard extends Component
     public $totalDocs;
     public $avgScore;
     public $progressPercentage;
+    public $prodi;
 
     // Chart data properties
     public $scoreTrendData;
@@ -21,27 +22,30 @@ class Dashboard extends Component
     public $criteriaProgressData;
     public $workflowActivityData;
     public $aiAnalysisHeatmap;
+    public $insights = [];
 
     public function mount()
     {
         $prodiId = session('selected_prodi_id');
-        $prodi = \App\Models\Prodi::find($prodiId) ?? auth()->user()->prodi ?? \App\Models\Prodi::first();
-
-        $this->loadBasicStats($prodi);
-        $this->loadChartData($prodi);
+        $this->prodi = \App\Models\Prodi::find($prodiId) ?? \App\Models\Prodi::first();
+        
+        $this->loadBasicStats($this->prodi);
+        $this->loadChartData($this->prodi);
     }
 
     protected function loadBasicStats($prodi)
     {
-        $this->totalCriteria = Kriteria::where('lam_type', $prodi->lam_type ?? 'sarjana')->count();
+        $this->totalCriteria = Kriteria::where('lam_type', $prodi->lam_type)->count();
         $this->totalDocs = Dokumen::where('prodi_id', $prodi->id)->count();
 
+        // Ambil semua skor AI yang terkait dengan prodi ini
         $scores = PenilaianAi::whereHas('dokumen', function($q) use ($prodi) {
             $q->where('prodi_id', $prodi->id);
         })->pluck('skor');
 
-        $this->avgScore = $scores->isNotEmpty() ? number_format($scores->avg(), 2) : 0;
+        $this->avgScore = $scores->isNotEmpty() ? number_format($scores->avg(), 2) : "0.00";
 
+        // Hitler kriteria yang sudah tuntas (Approved)
         $completedCriteria = Dokumen::where('prodi_id', $prodi->id)
             ->where('status', 'approved')
             ->distinct('kriteria_id')
@@ -50,6 +54,9 @@ class Dashboard extends Component
         $this->progressPercentage = $this->totalCriteria > 0
             ? round(($completedCriteria / $this->totalCriteria) * 100)
             : 0;
+            
+        // Trigger re-render charts di frontend
+        $this->dispatch('contentChanged');
     }
 
     protected function loadChartData($prodi)
@@ -61,6 +68,7 @@ class Dashboard extends Component
         $this->criteriaProgressData = $analyticsService->getCriteriaProgressData($prodi);
         $this->workflowActivityData = $analyticsService->getWorkflowActivityData($prodi);
         $this->aiAnalysisHeatmap = $analyticsService->getAiAnalysisHeatmap($prodi);
+        $this->insights = $analyticsService->getAccreditationInsights($prodi);
     }
 
 

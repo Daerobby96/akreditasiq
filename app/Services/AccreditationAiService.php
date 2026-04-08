@@ -169,11 +169,13 @@ class AccreditationAiService
 
     protected function getExpertContext(string $lamType): string
     {
-        if ($lamType === 'lam-emba') {
+        $type = strtolower(str_replace('-', '', $lamType));
+
+        if ($type === 'lamemba') {
             return "Specialized in LAMEMBA (Ekonomi, Manajemen, Bisnis, Akuntansi). You MUST evaluate based on the framework of 7 Criteria, 21 Dimensions, and 58 Indicators. Heavily weight the '8 Syarat Perlu Terakreditasi Unggul' (VMTS, Tata Kelola, Kurikulum, Penelitian, PKM, Dosen). If a document fails a 'Syarat Perlu', flag it clearly.";
         }
 
-        if ($lamType === 'lam-infokom') {
+        if ($type === 'laminfokom') {
             return "Specialized in LAM-INFOKOM (Informatika dan Komputer). You MUST evaluate based on the PPEPP (Penetapan, Pelaksanaan, Evaluasi, Pengendalian, Peningkatan) cycle. Focus on OBE (Outcome-Based Education), industrial certifications, and Lab infrastructures.";
         }
 
@@ -268,9 +270,11 @@ class AccreditationAiService
         $lamLabel = strtoupper($lamType);
         
         $extraInstructions = "";
-        if ($lamType === 'lam-emba') {
+        $type = strtolower(str_replace('-', '', $lamType));
+        
+        if ($type === 'lamemba') {
             $extraInstructions = "- Fokus pada evaluasi 58 indikator dan deteksi dini kegagalan '8 Syarat Perlu Unggul'.\n- Periksa apakah dokumen menunjukkan pelampauan SN-Dikti.";
-        } elseif ($lamType === 'lam-infokom') {
+        } elseif ($type === 'laminfokom') {
             $extraInstructions = "- Fokus pada siklus PPEPP dan kesesuaian dengan standar Kurikulum Komputasi 2.1 (2025).";
         }
 
@@ -296,5 +300,122 @@ INSTRUKSI KHUSUS {$lamLabel}:
 Pertimbangkan:
 - Kualitas data dan bukti fisik.
 - Potensi mencapai status Terakreditasi Unggul.";
+    }
+    public function auditNarrative(\App\Models\Kriteria $kriteria, array $narrativeContent, array $contextData): array
+    {
+        try {
+            $lamLabel = strtoupper($kriteria->lam_type);
+            $expertContext = $this->getExpertContext($kriteria->lam_type);
+            
+            $systemPrompt = "You are a professional auditor for Indonesian Higher Education Accreditation ({$lamLabel}). {$expertContext}
+            Your task is to review the narrative (LED) provided by the institution and evaluate its compliance with the current standards.";
+            
+            $userPrompt = "Perform a strict COMPLIANCE AUDIT for {$lamLabel} Accreditation Criteria: {$kriteria->kode} - {$kriteria->nama}.
+            
+            NARRATIVE CONTENT TO AUDIT:
+            " . json_encode($narrativeContent, JSON_PRETTY_PRINT) . "
+            
+            REFERENCE CONTEXT (Quantitative Data & Documents):
+            " . json_encode($contextData, JSON_PRETTY_PRINT) . "
+            
+            AUDIT TASK:
+            1. Evaluate if the narrative accurately reflects the quantitative context (LKPS).
+            2. Check for missing elements required by the {$lamLabel} instrument for this specific criteria.
+            3. Predict a score (1.0 to 4.0) based on quality, depth, and evidence linkage.
+            4. Provide critical gaps and actionable recommendations.
+            
+            Respond ONLY in JSON format:
+            {
+                \"predicted_score\": (float),
+                \"compliance_status\": \"Excellent|Good|Fair|Critical\",
+                \"key_strengths\": [\"point 1\", \"point 2\"],
+                \"detected_gaps\": [\"gap 1\", \"gap 2\"],
+                \"recommendations\": [\"step 1\", \"step 2\"],
+                \"analytical_summary\": \"Max 200 words summary\"
+            }";
+
+            return $this->callAI($userPrompt, $kriteria->lam_type);
+
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('AI Narrative Audit Error: ' . $e->getMessage());
+            throw $e;
+        }
+    }
+    public function checkDataConsistency(\App\Models\Kriteria $kriteria, array $narrativeContent, array $lkpsData): array
+    {
+        try {
+            $systemPrompt = "You are a specialized Data Consistency Auditor for Accreditation. Your ONLY task is to find discrepancies between the qualitative narrative (LED) and the quantitative tables (LKPS).";
+            
+            $userPrompt = "Perform a Data Consistency Audit for Criteria {$kriteria->kode}.
+            
+            NARRATIVE CONTENT:
+            " . json_encode($narrativeContent) . "
+            
+            LKPS DATA (The Source of Truth):
+            " . json_encode($lkpsData) . "
+            
+            TASKS:
+            1. Extract all numbers, years, percentages, and names mentioned in the NARRATIVE.
+            2. Cross-reference them with the LKPS DATA.
+            3. Flag any inconsistency (e.g. Narrative says '15 professors' but LKPS table only lists '12').
+            4. Provide the correct data from LKPS as a fix.
+            
+            Respond ONLY in JSON format:
+            {
+                \"consistency_score\": (0-100),
+                \"matches\": [{\"narrative_claim\": \"string\", \"lkps_value\": \"string\", \"status\": \"match\"}],
+                \"discrepancies\": [
+                    {
+                        \"claim\": \"string from narrative\",
+                        \"fact\": \"string from LKPS\",
+                        \"severity\": \"high|medium\",
+                        \"fix_suggestion\": \"how to rewrite it properly\"
+                    }
+                ],
+                \"audit_summary\": \"Overall consistency report\"
+            }";
+
+            return $this->callAI($userPrompt, $kriteria->lam_type);
+
+        } catch (\Exception $e) {
+            Log::error('AI Consistency Audit Error: ' . $e->getMessage());
+            throw $e;
+        }
+    }
+
+    public function suggestCitations(array $narrativeContent, array $availableDocuments): array
+    {
+        try {
+            $systemPrompt = "You are an Evidence Linking Specialist. Your task is to analyze an accreditation narrative and suggest which existing documents from the provided list should be cited as proof for specific claims.";
+            
+            $userPrompt = "NARRATIVE TO ANALYZE:
+            " . json_encode($narrativeContent) . "
+            
+            AVAILABLE DOCUMENTS (LIST):
+            " . json_encode($availableDocuments) . "
+            
+            TASK:
+            1. Find claims or sentences in the narrative that require evidence (e.g. SK mentions, statistics, policies).
+            2. Find the most relevant document(s) from the list that PROVE each claim.
+            3. For each match, provide the specific text segment from the narrative and the document ID to link.
+            
+            Respond ONLY in JSON format:
+            {
+                \"suggestions\": [
+                    {
+                        \"text_segment\": \"string snippet from narrative\",
+                        \"document_id\": (int),
+                        \"document_name\": \"string\",
+                        \"reason\": \"why this document proves the claim\"
+                    }
+                ]
+            }";
+
+            return $this->callAI($userPrompt, 'ban-pt');
+
+        } catch (\Exception $e) {
+            Log::error('AI Smart Citation Error: ' . $e->getMessage());
+            throw $e;
+        }
     }
 }

@@ -1,0 +1,56 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
+    {
+        Schema::table('narasis', function (Blueprint $table) {
+            $table->index(['prodi_id', 'kriteria_id']);
+            $table->index('status');
+        });
+
+        Schema::table('dokumens', function (Blueprint $table) {
+            $table->index(['prodi_id', 'kriteria_id']);
+            $table->index('status');
+        });
+
+        Schema::table('lkps_data', function (Blueprint $table) {
+            $table->index(['prodi_id', 'lam_table_id']);
+        });
+
+        Schema::table('users', function (Blueprint $table) {
+            $table->index('prodi_id');
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::table('narasis', function (Blueprint $table) {
+            $table->dropIndex(['prodi_id', 'kriteria_id']);
+            $table->dropIndex(['status']);
+        });
+
+        Schema::table('dokumens', function (Blueprint $table) {
+            $table->dropIndex(['prodi_id', 'kriteria_id']);
+            $table->dropIndex(['status']);
+        });
+
+        Schema::table('lkps_data', function (Blueprint $table) {
+            $table->dropIndex(['prodi_id', 'lam_table_id']);
+        });
+
+        Schema::table('users', function (Blueprint $table) {
+            $table->dropIndex(['prodi_id']);
+        });
+    }
+};

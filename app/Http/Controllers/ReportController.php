@@ -9,34 +9,50 @@ use Illuminate\Http\Request;
 
 class ReportController extends Controller
 {
-    public function download()
+    public function previewLed()
     {
         $prodiId = session('selected_prodi_id');
         $prodi = \App\Models\Prodi::find($prodiId) ?? auth()->user()->prodi ?? \App\Models\Prodi::first();
         
         $lamType = $prodi->lam_type ?? 'ban-pt';
-        $kriterias = Kriteria::where('lam_type', $lamType)->with(['dokumens.penilaian_ai'])->get();
+        $kriterias = Kriteria::where('lam_type', $lamType)
+            ->with(['narasis' => function($q) use ($prodiId) {
+                $q->where('prodi_id', $prodiId);
+            }])
+            ->orderBy('kode', 'asc')
+            ->get();
         
-        $totalScore = 0;
-        $count = 0;
-        
-        foreach($kriterias as $k) {
-            foreach($k->dokumens as $d) {
-                if($d->penilaian_ai->isNotEmpty()) {
-                    $totalScore += $d->penilaian_ai->first()->skor;
-                    $count++;
-                }
-            }
-        }
-        
-        $avgScore = $count > 0 ? $totalScore / $count : 0;
-
-        $pdf = Pdf::loadView('reports.accreditation', [
+        $pdf = Pdf::loadView('reports.led', [
+            'prodi' => $prodi,
             'kriterias' => $kriterias,
-            'avgScore' => $avgScore,
-            'date' => now()->format('d F Y')
+            'date' => now()->format('d F Y'),
+            'lamType' => ($lamType === 'lam-emba' ? 'LAMEMBA' : 'LAM-INFOKOM 2.1')
         ]);
 
-        return $pdf->download('Laporan_Akreditasi_Cerdas_' . now()->format('Ymd') . '.pdf');
+        return $pdf->stream();
+    }
+
+    public function downloadLed()
+    {
+        $prodiId = session('selected_prodi_id');
+        $prodi = \App\Models\Prodi::find($prodiId) ?? auth()->user()->prodi ?? \App\Models\Prodi::first();
+        
+        $lamType = $prodi->lam_type ?? 'ban-pt';
+        $kriterias = Kriteria::where('lam_type', $lamType)
+            ->with(['narasis' => function($q) use ($prodiId) {
+                $q->where('prodi_id', $prodiId);
+            }])
+            ->orderBy('kode', 'asc')
+            ->get();
+        
+        $pdf = Pdf::loadView('reports.led', [
+            'prodi' => $prodi,
+            'kriterias' => $kriterias,
+            'date' => now()->format('d F Y'),
+            'lamType' => ($lamType === 'lam-emba' ? 'LAMEMBA' : 'LAM-INFOKOM 2.1')
+        ]);
+
+        $filename = ($lamType === 'lam-emba' ? 'DED_' : 'LED_') . strtoupper($prodi->nama) . '_' . now()->format('Ymd') . '.pdf';
+        return $pdf->download($filename);
     }
 }

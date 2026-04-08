@@ -71,7 +71,7 @@ class AnalyticsService
      */
     public function getCriteriaProgressData(Prodi $prodi): array
     {
-        $kriteria = Kriteria::where('lam_type', $prodi->lam_type ?? 'sarjana')->get();
+        $kriteria = Kriteria::where('lam_type', $prodi->lam_type)->get();
 
         $data = $kriteria->map(function($kriterium) use ($prodi) {
             $totalDocs = Dokumen::where('prodi_id', $prodi->id)
@@ -198,7 +198,7 @@ class AnalyticsService
         }
 
         // Progress insight
-        $totalCriteria = Kriteria::where('lam_type', $prodi->lam_type ?? 'sarjana')->count();
+        $totalCriteria = Kriteria::where('lam_type', $prodi->lam_type)->count();
         $completedCriteria = Dokumen::where('prodi_id', $prodi->id)
             ->where('status', 'approved')
             ->distinct('kriteria_id')

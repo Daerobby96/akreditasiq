@@ -23,6 +23,8 @@ class User extends Authenticatable
         'password',
         'role',
         'prodi_id',
+        'google_id',
+        'avatar',
         'gdpr_consent_given_at',
         'gdpr_consent_withdrawn_at',
         'gdpr_consent_ip',

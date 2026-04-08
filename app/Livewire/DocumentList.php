@@ -5,14 +5,54 @@ namespace App\Livewire;
 use App\Models\Dokumen;
 use Livewire\Attributes\On;
 use Livewire\Component;
+use Livewire\WithFileUploads;
 
 class DocumentList extends Component
 {
+    use WithFileUploads;
+
     public $prodiId;
     public $kriteriaId;
     public $previewingUrl = null;
     public $analyzingIds = [];
     public $analysisSteps = []; // Track status messages
+    public $tempFile; // For quick upload
+
+    public function finishDraft($id)
+    {
+        $this->validate([
+            'tempFile' => 'required|mimes:pdf,docx,xlsx,zip|max:10240',
+        ]);
+
+        $dokumen = Dokumen::find($id);
+        if ($dokumen) {
+            $fileName = time() . '_' . $this->tempFile->getClientOriginalName();
+            $path = $this->tempFile->storeAs('dokumens', $fileName, 'public');
+
+            $dokumen->update([
+                'file_path' => $path,
+                'status' => 'submitted',
+                'metadata' => [
+                    'original_name' => $this->tempFile->getClientOriginalName(),
+                    'size' => $this->tempFile->getSize(),
+                    'mime' => $this->tempFile->getMimeType()
+                ]
+            ]);
+
+            \App\Models\Workflow::create([
+                'trackable_id' => $dokumen->id,
+                'trackable_type' => Dokumen::class,
+                'user_id' => auth()->id(),
+                'from_status' => 'draft',
+                'to_status' => 'submitted',
+                'action' => 'upload_draft',
+                'comment' => 'Completed AI-generated draft placeholder.',
+            ]);
+
+            $this->tempFile = null;
+            $this->dispatch('notify', message: 'Dokumen berhasil diunggah!', type: 'success');
+        }
+    }
 
     protected $listeners = ['kriteria-selected' => 'updateKriteria'];
 

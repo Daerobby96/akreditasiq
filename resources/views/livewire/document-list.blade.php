@@ -16,15 +16,49 @@
                         <div class="min-w-0">
                             <div class="flex items-center space-x-2">
                                 <h4 class="text-base font-bold text-slate-900 dark:text-white truncate">{{ $dokumen->nama_file }}</h4>
-                                <span class="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400 text-[10px] font-bold uppercase tracking-wider">
-                                    {{ $dokumen->status }}
-                                </span>
+                                <div x-data="{ open: false }" class="relative">
+                                    <button @click="open = !open" 
+                                        class="flex items-center space-x-1 px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400 text-[10px] font-bold uppercase tracking-wider hover:bg-emerald-200 transition-colors">
+                                        <span>{{ $dokumen->status }}</span>
+                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                                    </button>
+                                    <div x-show="open" @click.away="open = false" 
+                                        class="absolute left-0 mt-2 w-32 bg-white dark:bg-slate-800 rounded-xl shadow-2xl border border-slate-100 dark:border-slate-700 z-50 overflow-hidden animate-fade-in-up">
+                                        @foreach(['draft', 'submitted', 'review', 'approved', 'revision'] as $st)
+                                            <button wire:click="updateStatus({{ $dokumen->id }}, '{{ $st }}')" @click="open = false"
+                                                class="w-full text-left px-4 py-2 text-[10px] font-bold uppercase tracking-tight hover:bg-slate-50 dark:hover:bg-slate-700 {{ $dokumen->status === $st ? 'text-indigo-600 bg-indigo-50/50' : 'text-slate-600 dark:text-slate-400' }}">
+                                                {{ $st }}
+                                            </button>
+                                        @endforeach
+                                    </div>
+                                </div>
                             </div>
                             <p class="text-[11px] text-slate-500">{{ $dokumen->created_at->diffForHumans() }} • v{{ $dokumen->versi }}</p>
                         </div>
                     </div>
 
                     <div class="flex items-center space-x-3">
+                        @if($dokumen->file_path === 'PENDING' || $dokumen->status === 'draft')
+                            <div x-data="{ uploading: false }" 
+                                x-on:livewire-upload-start="uploading = true" 
+                                x-on:livewire-upload-finish="uploading = false" 
+                                x-on:livewire-upload-error="uploading = false"
+                                class="relative">
+                                <input type="file" wire:model="tempFile" class="hidden" id="file-{{ $dokumen->id }}" x-on:change="$wire.finishDraft({{ $dokumen->id }})">
+                                <label for="file-{{ $dokumen->id }}" 
+                                    class="flex items-center space-x-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-[10px] font-black rounded-xl cursor-pointer transition-all shadow-lg shadow-indigo-500/20 active:scale-95">
+                                    <span x-show="!uploading" class="flex items-center space-x-2">
+                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
+                                        <span>UNGGAH DOKUMEN FISIK</span>
+                                    </span>
+                                    <span x-show="uploading" class="flex items-center space-x-2">
+                                        <svg class="w-3 h-3 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                                        <span>UPLOADING...</span>
+                                    </span>
+                                </label>
+                            </div>
+                        @endif
+
                         @if($dokumen->penilaian_ai->isNotEmpty())
                             @php $ai = $dokumen->penilaian_ai->first(); @endphp
                             <div class="flex items-center bg-slate-100 dark:bg-slate-800 rounded-full pl-3 pr-1 py-1 border border-slate-200 dark:border-slate-700 shadow-sm">
