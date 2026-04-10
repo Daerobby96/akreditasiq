@@ -5,13 +5,7 @@ const OFFLINE_URL = '/offline';
 // Resources to cache immediately
 const STATIC_CACHE_URLS = [
     '/',
-    '/dashboard',
-    '/offline',
-    '/css/app.css',
-    '/js/app.js',
-    '/manifest.json',
-    '/images/icons/icon-192x192.png',
-    '/images/icons/icon-512x512.png'
+    '/manifest.json'
 ];
 
 // Dynamic resources to cache when accessed

@@ -4,6 +4,10 @@ namespace App\Livewire;
 
 use App\Models\Kriteria;
 use Livewire\Component;
+use Livewire\WithFileUploads;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Imports\LkpsImport;
+use App\Exports\LkpsTemplateExport;
 
 class Lkps extends Component
 {
@@ -16,6 +20,9 @@ class Lkps extends Component
     public $editingId = null;
     public $showPreview = false;
     public $editBuffer = [];
+    public $excelFile;
+    
+    use WithFileUploads;
 
     public function mount()
     {
@@ -104,15 +111,30 @@ class Lkps extends Component
     {
         $this->editingId = $id;
         $row = collect($this->tableData)->firstWhere('id', $id);
-        $this->editBuffer = $row->data_values ?? [];
+        $data = $row->data_values ?? [];
+        
+        // Initialize buffer with current data AND all possible columns for this table
+        $currentTable = collect($this->dynamicTables)->where('id', $this->activeTableId)->first();
+        $this->editBuffer = [];
+        
+        if ($currentTable) {
+            foreach ($currentTable->columns as $column) {
+                if ($column->field_name) {
+                    $this->editBuffer[$column->field_name] = $data[$column->field_name] ?? '';
+                }
+            }
+        }
     }
 
     public function saveEntry()
     {
         if ($this->editingId) {
-            \App\Models\LkpsData::find($this->editingId)->update([
-                'data_values' => $this->editBuffer
-            ]);
+            $row = \App\Models\LkpsData::find($this->editingId);
+            if ($row) {
+                $row->update([
+                    'data_values' => $this->editBuffer
+                ]);
+            }
             $this->editingId = null;
             $this->loadTableData();
             $this->dispatch('notify', message: 'Data berhasil disimpan!', type: 'success');
@@ -132,6 +154,43 @@ class Lkps extends Component
         $this->editBuffer = [];
     }
 
+    public function importExcel()
+    {
+        $this->validate([
+            'excelFile' => 'required|mimes:xlsx,xls,csv|max:10240',
+        ]);
+
+        $currentTable = collect($this->dynamicTables)->where('id', $this->activeTableId)->first();
+        $leafColumns = $currentTable->columns->filter(fn($col) => $col->children->isEmpty());
+
+        try {
+            Excel::import(new LkpsImport($this->activeTableId, $this->prodi->id, $leafColumns), $this->excelFile->getRealPath());
+            
+            $count = session()->pull('import_summary', 0);
+            $this->excelFile = null;
+            $this->loadTableData();
+            
+            if ($count > 0) {
+                $this->dispatch('notify', message: "Berhasil! {$count} data baru telah ditambahkan.", type: 'success');
+            } else {
+                $this->dispatch('notify', message: 'Tidak ada data baru yang cocok ditemukan dalam file.', type: 'warning');
+            }
+        } catch (\Exception $e) {
+            $this->dispatch('notify', message: 'Gagal mengimpor file: ' . $e->getMessage(), type: 'error');
+        }
+    }
+
+    public function downloadTemplate()
+    {
+        $currentTable = collect($this->dynamicTables)->where('id', $this->activeTableId)->first();
+        if (!$currentTable) return;
+
+        $leafColumns = $currentTable->columns->filter(fn($col) => $col->children->isEmpty());
+        $headers = $leafColumns->map(fn($col) => $col->label ?: $col->header_name)->toArray();
+        
+        return Excel::download(new LkpsTemplateExport($headers), 'template_' . $currentTable->slug . '.xlsx');
+    }
+
     public function render()
     {
         $currentTable = collect($this->dynamicTables)->where('slug', $this->activeTab)->first();
@@ -139,8 +198,24 @@ class Lkps extends Component
         $leafColumns = [];
 
         if ($currentTable) {
-            $rootColumns = $currentTable->columns->whereNull('parent_id');
-            $leafColumns = $currentTable->columns->filter(fn($col) => $col->children->isEmpty());
+            $allCols = $currentTable->columns;
+            $rootColumns = $allCols->whereNull('parent_id');
+            
+            // Recursive helper to get leaf columns in correct visual order
+            $getLeafs = function($cols) use (&$getLeafs, $allCols) {
+                $leafs = collect();
+                foreach($cols as $col) {
+                    $children = $allCols->where('parent_id', $col->id);
+                    if ($children->isEmpty()) {
+                        $leafs->push($col);
+                    } else {
+                        $leafs = $leafs->concat($getLeafs($children));
+                    }
+                }
+                return $leafs;
+            };
+
+            $leafColumns = $getLeafs($rootColumns);
         }
 
         $currentIndex = $this->dynamicTables->search(fn($t) => $t->slug === $this->activeTab);
