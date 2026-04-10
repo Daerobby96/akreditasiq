@@ -14,8 +14,24 @@ new class extends Component {
 
     public function mount()
     {
-        $this->prodis = \App\Models\Prodi::all();
-        $this->selectedProdiId = session('selected_prodi_id', optional($this->prodis->first())->id);
+        $user = auth()->user();
+        
+        // Restriction: Only admin can see and switch to all prodis
+        if ($user->role === 'admin') {
+            $this->prodis = \App\Models\Prodi::all();
+        } else {
+            // Non-admin users only see the prodi they are assigned to
+            $this->prodis = \App\Models\Prodi::where('id', $user->prodi_id)->get();
+        }
+
+        // Initialize selected prodi from session
+        $this->selectedProdiId = session('selected_prodi_id');
+        
+        // If session is empty or user lacks access to the session's prodi, set to default
+        if (!$this->selectedProdiId || !$this->prodis->contains('id', $this->selectedProdiId)) {
+            $this->selectedProdiId = $user->prodi_id ?? optional($this->prodis->first())->id;
+        }
+
         if ($this->selectedProdiId) {
             session(['selected_prodi_id' => $this->selectedProdiId]);
         }
@@ -29,6 +45,14 @@ new class extends Component {
 
     public function selectProdi($id)
     {
+        $user = auth()->user();
+        
+        // Security: Ensure non-admins can't switch to prodis they don't belong to
+        if ($user->role !== 'admin' && $user->prodi_id != $id) {
+            $this->dispatch('notify', message: 'Anda tidak memiliki akses ke prodi tersebut.', type: 'error');
+            return;
+        }
+
         session(['selected_prodi_id' => $id]);
         $this->selectedProdiId = $id;
         $this->redirect(request()->header('Referer'), navigate: true);
