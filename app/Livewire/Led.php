@@ -238,11 +238,32 @@ class Led extends Component
             
             if ($this->isEditing) {
                 $this->editData[$section] = $formattedResult;
-                // Dispatch event to update Trix editors via JS if needed
+                // Update local state for view mode too
+                $this->narasi[$this->activeKriteria][$section] = $formattedResult;
+                
+                // Dispatch event to update Trix editors via JS
                 $this->dispatch('ai-content-generated', field: $section, content: $formattedResult);
             } else {
                 $this->narasi[$this->activeKriteria][$section] = $formattedResult;
             }
+
+            // PERMANENCE FIX: Auto-save to database so it effectively "enters the draft"
+            $oldStatus = $this->currentNarasiModel->status;
+            $newStatus = ($oldStatus == 'todo') ? 'in_progress' : $oldStatus;
+            
+            $content = $this->isEditing ? $this->editData : $this->narasi[$this->activeKriteria];
+            
+            $this->currentNarasiModel->update([
+                'content' => $content,
+                'status' => $newStatus
+            ]);
+
+            if ($oldStatus == 'todo') {
+                $this->logWorkflow('status_change', 'todo', 'in_progress', 'Narrative drafted by AI');
+            } else {
+                $this->logWorkflow('ai_generation', null, null, "Section '{$section}' regenerated via AI");
+            }
+
         } catch (\Exception $e) {
             $this->dispatch('notify', message: 'Gagal generate narasi: ' . $e->getMessage(), type: 'error');
         }
@@ -251,7 +272,7 @@ class Led extends Component
         $this->showAiPanel = false;
         $this->aiPrompt = '';
         
-        $this->dispatch('notify', message: 'Narasi AI berhasil digenerate!', type: 'success');
+        $this->dispatch('notify', message: 'Narasi AI berhasil digenerate dan disimpan ke draf!', type: 'success');
     }
 
     public function auditCompliance()
