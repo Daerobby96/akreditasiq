@@ -1,0 +1,4 @@
+deployment:
+  tasks:
+    - export DEPLOYPATH=/home/politekn/akreditasi.polka.ac.id/
+    - /bin/cp -R * $DEPLOYPATH
