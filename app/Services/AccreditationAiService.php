@@ -176,7 +176,19 @@ class AccreditationAiService
         }
 
         if ($type === 'laminfokom') {
-            return "Specialized in LAM-INFOKOM (Informatika dan Komputer). You MUST evaluate based on the PPEPP (Penetapan, Pelaksanaan, Evaluasi, Pengendalian, Peningkatan) cycle. Focus on OBE (Outcome-Based Education), industrial certifications, and Lab infrastructures.";
+            $extraInstructions = "- Fokus pada siklus PPEPP dan kesesuaian dengan standar Kurikulum Komputasi 2.1 (2025).";
+        } elseif ($type === 'lamteknik') {
+            $extraInstructions = "- Fokus pada kesesuaian kurikulum dengan Industri 4.0, fasilitas laboratorium teknik, kerjasama industri, dan kompetensi praktis teknik.";
+        } elseif ($type === 'lamdik') {
+            $extraInstructions = "- Fokus pada pengembangan kompetensi pedagogik, praktik pengalaman lapangan (PPL), kurikulum pendidikan guru, dan kesiapan menjadi pendidik profesional.";
+        }
+
+        if ($type === 'lamteknik') {
+            return "Specialized in LAM Teknik (Engineering programs). You MUST evaluate based on engineering accreditation standards focusing on curriculum alignment with industry 4.0, laboratory facilities and utilization, industry partnerships, technical competencies, certifications, and practical engineering skills. Emphasize hands-on training, technical certifications, and industry relevance.";
+        }
+
+        if ($type === 'lamdik') {
+            return "Specialized in LAMDIK (Education programs). You MUST evaluate based on teacher education standards focusing on pedagogical competencies, teaching practice (PPL), curriculum for teacher training, educational facilities, partnerships with schools, and teacher certification. Emphasize development of teaching skills, classroom management, and educational innovation.";
         }
 
         return "Specialized in BAN-PT standards. Use the 9 Criteria framework with focus on output and outcome quality.";

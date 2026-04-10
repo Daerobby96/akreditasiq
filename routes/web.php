@@ -41,11 +41,17 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Comments routes
     Route::get('/documents/{document}/comments', \App\Livewire\DocumentComments::class)->name('documents.comments');
+
+    Route::get('/settings', \App\Livewire\Settings::class)->name('settings');
 });
 
 Route::middleware('auth')->group(function () {
     Route::get('/report/preview-led', [ReportController::class, 'previewLed'])->name('report.preview-led');
+    Route::get('/report/preview-lkps', [ReportController::class, 'previewLkps'])->name('report.preview-lkps');
+    Route::get('/report/download-lkps', [ReportController::class, 'downloadLkps'])->name('report.download-lkps');
+    Route::get('/report/download-lkps-docx', [ReportController::class, 'downloadLkpsDocx'])->name('report.download-lkps-docx');
     Route::get('/report/download-led', [ReportController::class, 'downloadLed'])->name('report.download-led');
+    Route::get('/report/download-led-docx', [ReportController::class, 'downloadLedDocx'])->name('report.download-led-docx');
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');

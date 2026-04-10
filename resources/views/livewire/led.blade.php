@@ -122,6 +122,13 @@
                                     <span wire:loading wire:target="checkConsistency">Checking...</span>
                                 </button>
 
+                                <button wire:click="findEvidence" wire:loading.attr="disabled" class="group flex items-center space-x-2 px-4 py-2.5 bg-indigo-500 text-white text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-indigo-600 transition-all shadow-lg shadow-indigo-500/20">
+                                    <svg wire:loading.remove wire:target="findEvidence" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.826a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path></svg>
+                                    <svg wire:loading wire:target="findEvidence" class="w-4 h-4 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                                    <span wire:loading.remove wire:target="findEvidence">Cari Bukti</span>
+                                    <span wire:loading wire:target="findEvidence">Searching...</span>
+                                </button>
+
                                 <button wire:click="auditCompliance" wire:loading.attr="disabled" class="group flex items-center space-x-2 px-4 py-2.5 bg-emerald-500 text-white text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-emerald-600 transition-all shadow-lg shadow-emerald-500/20">
                                     <svg wire:loading.remove wire:target="auditCompliance" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                                     <svg wire:loading wire:target="auditCompliance" class="w-4 h-4 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
@@ -206,6 +213,46 @@
                     @php 
                         $data = $narasi[$activeKriteria] ?? null; 
                     @endphp
+
+                        <!-- Evidence suggestions advisor -->
+                        @if(!empty($evidenceSuggestions[$activeKriteria]))
+                            <div class="glass-card p-6 border-l-4 border-indigo-500 bg-indigo-50/30 dark:bg-indigo-900/10">
+                                <div class="flex items-center justify-between mb-4">
+                                    <div class="flex items-center space-x-3">
+                                        <div class="p-2 bg-indigo-100 dark:bg-indigo-900/30 rounded-lg">
+                                            <svg class="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path></svg>
+                                        </div>
+                                        <h4 class="text-sm font-black uppercase tracking-widest text-slate-900 dark:text-white">Smart Evidence Advisor</h4>
+                                    </div>
+                                    <button @click="$wire.set('evidenceSuggestions.{{ $activeKriteria }}', [])" class="text-slate-400 hover:text-slate-600">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                                    </button>
+                                </div>
+
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    @foreach($evidenceSuggestions[$activeKriteria] as $sug)
+                                        <div class="group p-4 bg-white dark:bg-slate-800 rounded-2xl border border-indigo-100 dark:border-indigo-900/40 hover:border-indigo-500 transition-all shadow-sm">
+                                            <div class="flex items-start justify-between">
+                                                <div class="flex-1">
+                                                    <p class="text-[10px] font-bold text-indigo-600 mb-1 uppercase tracking-tighter">Untuk teks:</p>
+                                                    <p class="text-[11px] text-slate-600 dark:text-slate-400 italic line-clamp-2">"{{ $sug['text_segment'] }}"</p>
+                                                </div>
+                                            </div>
+                                            <div class="mt-4 flex items-center justify-between border-t border-slate-50 dark:border-slate-800 pt-3">
+                                                <div class="flex items-center space-x-2">
+                                                    <svg class="w-3 h-3 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                                                    <span class="text-[10px] font-black text-slate-700 dark:text-slate-300 truncate max-w-[120px]">{{ $sug['document_name'] }}</span>
+                                                </div>
+                                                <button onclick="copyToClipboard('<span class=\'evidence-link\' data-id=\'{{ $sug['document_id'] }}\'>[Lihat Bukti: {{ $sug['document_name'] }}]</span>'); alert('Tag tautan disalin! Tempel di editor pada teks yang relevan.')" 
+                                                        class="px-3 py-1 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 text-[9px] font-black uppercase rounded-lg hover:bg-indigo-600 hover:text-white transition-all">
+                                                    Salin Tautan
+                                                </button>
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            </div>
+                        @endif
 
                         <!-- Consistency Results Panel -->
                         @if(isset($consistencyResults[$activeKriteria]))
@@ -535,6 +582,15 @@
                 }
             });
         });
+
+        function copyToClipboard(text) {
+            const el = document.createElement('textarea');
+            el.value = text;
+            document.body.appendChild(el);
+            el.select();
+            document.execCommand('copy');
+            document.body.removeChild(el);
+        }
     </script>
     <!-- PDF Preview Modal -->
     <div x-data="{ isPreviewOpen: @entangle('showPreview') }"
@@ -565,7 +621,10 @@
                     <p class="text-xs text-slate-500">Hasil draf kualitatif untuk instrument akreditasi aktif.</p>
                 </div>
                 <div class="flex items-center space-x-3">
-                    <a href="{{ route('report.download-led') }}" class="px-5 py-2.5 bg-indigo-600 text-white rounded-xl text-xs font-black uppercase tracking-widest hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-500/20">Download PDF</a>
+                    <div class="flex items-center bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-1">
+                        <a href="{{ route('report.download-led') }}" class="px-4 py-2 bg-indigo-600 text-white rounded-lg text-xs font-black uppercase tracking-widest hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-500/20">PDF</a>
+                        <a href="{{ route('report.download-led-docx') }}" class="px-4 py-2 text-indigo-600 dark:text-indigo-400 rounded-lg text-xs font-black uppercase tracking-widest hover:bg-indigo-50 dark:hover:bg-indigo-900/30 transition-all">Docx</a>
+                    </div>
                     <button @click="isPreviewOpen = false" class="p-2.5 bg-white dark:bg-slate-700 text-slate-400 hover:text-rose-500 rounded-xl transition-all border border-slate-200 dark:border-slate-600">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                     </button>

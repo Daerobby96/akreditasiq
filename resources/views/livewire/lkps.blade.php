@@ -8,14 +8,6 @@
                 </h1>
                 <p class="mt-2 text-slate-500 font-medium">Laporan Kinerja Program Studi yang dinamis sesuai standar LAM.</p>
             </div>
-            <div class="flex items-center bg-white dark:bg-slate-900 p-2 rounded-[1.5rem] shadow-xl shadow-slate-200/50 dark:shadow-none border border-slate-200 dark:border-slate-800">
-                @foreach($availableLams as $key => $label)
-                    <button wire:click="setLam('{{ $key }}')" 
-                        class="px-5 py-2.5 rounded-2xl text-[10px] font-black tracking-widest transition-all {{ $selectedLam === $key ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/20' : 'text-slate-400 hover:text-slate-600' }}">
-                        {{ $label }}
-                    </button>
-                @endforeach
-            </div>
         </div>
 
         <div class="flex flex-col lg:flex-row gap-10">
@@ -83,6 +75,10 @@
                                     <p class="text-sm text-slate-400 font-medium mt-1 italic">{{ $currentTable->description ?? 'Lengkapi data kuantitatif di bawah ini sesuai instrumen.' }}</p>
                                 </div>
                                 <div class="flex items-center space-x-3">
+                                    <button @click="$wire.set('showPreview', true)" class="px-5 py-3 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-white text-[10px] font-black uppercase tracking-widest rounded-2xl transition-all flex items-center hover:bg-indigo-600 hover:text-white border border-slate-200 dark:border-slate-800">
+                                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                                        Pratinjau PDF
+                                    </button>
                                     <button wire:click="addRow" class="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white text-[10px] font-black uppercase tracking-widest rounded-2xl transition-all flex items-center shadow-xl shadow-indigo-500/20">
                                         <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
                                         Tambah Baris
@@ -212,8 +208,46 @@
                                 <p class="text-sm text-slate-400 mt-2 max-w-xs">Konfigurasi tabel untuk standar {{ strtoupper($selectedLam) }} belum tersedia di database.</p>
                             </div>
                         @endif
-                    </div>
+    <!-- PDF Preview Modal -->
+    <div x-data="{ isPreviewOpen: @entangle('showPreview') }"
+         x-show="isPreviewOpen" 
+         class="fixed inset-0 z-[60] overflow-y-auto px-4 py-6 sm:px-0 flex items-center justify-center" 
+         x-cloak
+         x-transition:enter="ease-out duration-300"
+         x-transition:enter-start="opacity-0"
+         x-transition:enter-end="opacity-100"
+         x-transition:leave="ease-in duration-200"
+         x-transition:leave-start="opacity-100"
+         x-transition:leave-end="opacity-0">
+        
+        <div class="fixed inset-0 bg-slate-900/90 backdrop-blur-sm" @click="isPreviewOpen = false"></div>
+
+        <div x-show="isPreviewOpen"
+             class="bg-white dark:bg-slate-900 rounded-[2rem] overflow-hidden shadow-2xl transform transition-all sm:w-full sm:max-w-6xl h-[90vh] flex flex-col relative"
+             x-transition:enter="ease-out duration-300"
+             x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+             x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
+             x-transition:leave="ease-in duration-200"
+             x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
+             x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+        >
+            <div class="p-6 bg-slate-50 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between">
+                <div>
+                    <h3 class="text-xl font-black text-slate-900 dark:text-white uppercase tracking-tight">Pratinjau Dokumen LKPS</h3>
+                    <p class="text-xs text-slate-500">Laporan data kuantitatif lengkap untuk prodi aktif.</p>
                 </div>
+                <div class="flex items-center space-x-3">
+                    <div class="flex items-center bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-1">
+                        <a href="{{ route('report.download-lkps') }}" class="px-4 py-2 bg-indigo-600 text-white rounded-lg text-xs font-black uppercase tracking-widest hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-500/20">PDF</a>
+                        <a href="{{ route('report.download-lkps-docx') }}" class="px-4 py-2 text-indigo-600 dark:text-indigo-400 rounded-lg text-xs font-black uppercase tracking-widest hover:bg-indigo-50 dark:hover:bg-indigo-900/30 transition-all">Docx</a>
+                    </div>
+                    <button @click="isPreviewOpen = false" class="p-2.5 bg-white dark:bg-slate-700 text-slate-400 hover:text-rose-500 rounded-xl transition-all border border-slate-200 dark:border-slate-600">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    </button>
+                </div>
+            </div>
+            <div class="flex-1 bg-slate-100 dark:bg-slate-950 p-4">
+                <iframe src="{{ route('report.preview-lkps') }}" class="w-full h-full rounded-2xl border border-slate-200 dark:border-slate-800 shadow-inner" frameborder="0"></iframe>
             </div>
         </div>
     </div>

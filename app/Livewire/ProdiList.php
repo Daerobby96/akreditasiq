@@ -22,7 +22,7 @@ class ProdiList extends Component
     {
         return view('livewire.prodi-list', [
             'prodis' => Prodi::all(),
-            'lamOptions' => ['ban-pt', 'lam-infokom', 'lam-emba', 'lam-ptkes']
+            'lamOptions' => ['ban-pt', 'lam-infokom', 'lam-emba', 'lam-ptkes', 'lam-teknik', 'lamdik']
         ])->layout('layouts.app');
     }
 

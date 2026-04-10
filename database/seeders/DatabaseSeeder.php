@@ -21,8 +21,12 @@ class DatabaseSeeder extends Seeder
             KriteriaSeeder::class,
             ProdiSeeder::class,
             UserSeeder::class,
-            LamfokomSeeder::class,
+            LamInfokomSeeder::class,
             LamembaSeeder::class,
+            LamTeknikSeeder::class,
+            InfokomLedSeeder::class,
+            LamembaLedSeeder::class,
+            LamTeknikLedSeeder::class,
         ]);
     }
 }

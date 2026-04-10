@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Laporan Evaluasi Diri (LED) - Teknologi Rekayasa Elektrikal Mekanik</title>
+    <style>
+        @page {
+            margin: 2.5cm 2.5cm 3cm 2.5cm;
+        }
+        body {
+            font-family: 'Arial', sans-serif;
+            line-height: 1.5;
+            color: #000;
+            font-size: 11pt;
+            text-align: justify;
+        }
+        .header-text {
+                        left: 0;
+            right: 0;
+            font-size: 9pt;
+            border-bottom: 1px solid #000;
+            padding-bottom: 5px;
+            font-style: italic;
+            margin-bottom: 20px;
+        }
+        .cover {
+            text-align: center;
+            margin-top: 2cm;
+        }
+        .cover h1 {
+            font-size: 18pt;
+            font-weight: bold;
+            margin-bottom: 0.5cm;
+        }
+        .cover h2 {
+            font-size: 14pt;
+            margin-bottom: 1cm;
+        }
+        .logo-placeholder {
+            width: 150px;
+            height: 150px;
+            border: 1px dashed #ccc;
+            margin: 2cm auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10pt;
+            color: #999;
+        }
+        .page-break {
+            page-break-after: always;
+            clear: both;
+        }
+        .bab-title {
+            font-size: 14pt;
+            font-weight: bold;
+            text-align: center;
+            margin-top: 50px;
+            margin-bottom: 30px;
+            text-transform: uppercase;
+        }
+        .kriteria-title {
+            font-size: 11pt;
+            font-weight: bold;
+            margin-top: 15pt;
+            margin-bottom: 10pt;
+        }
+        .section-label {
+            font-weight: bold;
+            margin-top: 10pt;
+            margin-bottom: 5pt;
+        }
+                table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+        }
+        th, td {
+            border: 1px solid #000;
+            padding: 8px;
+            vertical-align: top;
+        }
+        th {
+            background-color: #f3f4f6;
+        }
+    </style>
+</head>
+<body>
+    <div class="header-text">
+                    Laporan Evaluasi Diri (LED) LAM-INFOKOM 2.1 2.1 - 2025
+            </div>
+
+    <div class="cover">
+        <div class="logo-placeholder">LOGO PERGURUAN TINGGI</div>
+                    <h1>LAPORAN EVALUASI DIRI</h1>
+            <h1>AKREDITASI PROGRAM STUDI</h1>
+                
+        <h2 style="margin-top: 1cm">PROGRAM STUDI TEKNOLOGI REKAYASA ELEKTRIKAL MEKANIK</h2>
+        <h2>FAKULTAS TEKNIK</h2>
+        <h2>LARAVEL</h2>
+        <h2 style="margin-top: 2cm">KOTA .................., TAHUN 2026</h2>
+    </div>
+
+    <div class="page-break"></div>
+
+    
+    <div class="bab-title">BAGIAN KEDUA<br>
+                    STRUKTUR LAPORAN EVALUASI DIRI
+            </div>
+    
+    <div class="kriteria-title">
+                    II. LAPORAN EVALUASI DIRI
+            </div>
+    
+    <div class="kriteria-title" style="margin-left: 20pt;">
+                    C. KRITERIA
+            </div>
+
+            <div style="margin-left: 20pt;">
+            <div class="kriteria-title">
+                                    C.1 STRUKTUR TIM PENYUSUN DAN MEKANISME KERJA
+                            </div>
+            
+            
+                            <div class="section-label">
+                                            1.1 Deskripsi tim penyusun (Ketua, Sekretaris, Anggota) dan peran masing-masing.
+                                    </div>
+                <div class="content">
+                    
+                </div>
+                            <div class="section-label">
+                                            1.2 Mekanisme pengumpulan data, verifikasi, dan penyusunan narasi evaluasi diri.
+                                    </div>
+                <div class="content">
+                    
+                </div>
+                    </div>
+        
+                    <div class="page-break"></div>
+                    <div style="margin-left: 20pt;">
+            <div class="kriteria-title">
+                                    C.2 ANALISIS LINGKUNGAN EKSTERNAL DALAM PENGEMBANGAN UPPS DAN PRODI
+                            </div>
+            
+            
+                            <div class="section-label">
+                                            2.1 Analisis Lingkungan Makro (Kebijakan pemerintah, Ekonomi, Sosial, Budaya, IPTEK).
+                                    </div>
+                <div class="content">
+                    <p><i>(Belum ada narasi)</i></p>
+                </div>
+                            <div class="section-label">
+                                            2.2 Analisis Lingkungan Mikro (Dunia industri/kerja, Pesaing, Pengguna lulusan).
+                                    </div>
+                <div class="content">
+                    <p><i>(Belum ada narasi)</i></p>
+                </div>
+                    </div>
+        
+                    <div class="page-break"></div>
+                    <div style="margin-left: 20pt;">
+            <div class="kriteria-title">
+                                    C.3 DIFFERENSIASI MISI
+                            </div>
+            
+            
+                            <div class="section-label">
+                                            3.1 Visi, Misi, Tujuan, dan Strategi (VMTS) UPPS dan Visi Keilmuan Program Studi.
+                                    </div>
+                <div class="content">
+                    <p><i>(Belum ada narasi)</i></p>
+                </div>
+                            <div class="section-label">
+                                            3.2 Strategi pencapaian VMTS dan keberlanjutan UPPS/PS.
+                                    </div>
+                <div class="content">
+                    <p><i>(Belum ada narasi)</i></p>
+                </div>
+                    </div>
+        
+                    <div class="page-break"></div>
+                    <div style="margin-left: 20pt;">
+            <div class="kriteria-title">
+                                    C.4 AKUNTABILITAS
+                            </div>
+            
+            
+                            <div class="section-label">
+                                            4.1 a. Kerja sama (Pendidikan, Penelitian, PkM tingkat Internasional, Nasional, Lokal).
+                                    </div>
+                <div class="content">
+                    <p><i>(Belum ada narasi)</i></p>
+                </div>
+                            <div class="section-label">
+                                            4.2 b. Keuangan (Perencanaan, alokasi, dan penggunaan dana TS-2 s.d TS).
+                                    </div>
+                <div class="content">
+                    <p><i>(Belum ada narasi)</i></p>
+                </div>
+                    </div>
+        
+                    <div class="page-break"></div>
+                    <div style="margin-left: 20pt;">
+            <div class="kriteria-title">
+                                    C.5 RELEVANSI PENDIDIKAN, PENELITIAN, DAN PKM
+                            </div>
+            
+            
+                            <div class="section-label">
+                                            5.1 a. Kurikulum dan Rencana Pembelajaran (Pemenuhan KKNI dan Industri 4.0).
+                                    </div>
+                <div class="content">
+                    <p><i>(Belum ada narasi)</i></p>
+                </div>
+                            <div class="section-label">
+                                            5.2 b. Integrasi Penelitian dan PkM dalam proses Pembelajaran.
+                                    </div>
+                <div class="content">
+                    <p><i>(Belum ada narasi)</i></p>
+                </div>
+                            <div class="section-label">
+                                            5.3 c. Penelitian dan PkM DTPS (Capaian hibah dan pendanaan).
+                                    </div>
+                <div class="content">
+                    <p><i>(Belum ada narasi)</i></p>
+                </div>
+                    </div>
+        
+                    <div class="page-break"></div>
+                    <div style="margin-left: 20pt;">
+            <div class="kriteria-title">
+                                    C.6 SUMBER DAYA MANUSIA
+                            </div>
+            
+            
+                            <div class="section-label">
+                                            6.1 a. Profil Dosen Tetap dan Kecukupan DTPS.
+                                    </div>
+                <div class="content">
+                    <p><i>(Belum ada narasi)</i></p>
+                </div>
+                            <div class="section-label">
+                                            6.2 b. Tenaga Kependidikan (Kualifikasi teknisi, laboran, admin).
+                                    </div>
+                <div class="content">
+                    <p><i>(Belum ada narasi)</i></p>
+                </div>
+                            <div class="section-label">
+                                            6.3 c. Beban Kerja DTPR (EWMP per semester).
+                                    </div>
+                <div class="content">
+                    <p><i>(Belum ada narasi)</i></p>
+                </div>
+                            <div class="section-label">
+                                            6.4 d. Luaran Penelitian/PkM Dosen (Publikasi, HKI, Rekognisi).
+                                    </div>
+                <div class="content">
+                    <p><i>(Belum ada narasi)</i></p>
+                </div>
+                    </div>
+        
+                    <div class="page-break"></div>
+                    <div style="margin-left: 20pt;">
+            <div class="kriteria-title">
+                                    C.7 SARANA, PRASARANA, DAN K3L
+                            </div>
+            
+            
+                            <div class="section-label">
+                                            7.1 Sarana dan Prasarana Utama (Laboratorium, Studio, Bengkel).
+                                    </div>
+                <div class="content">
+                    <p><i>(Belum ada narasi)</i></p>
+                </div>
+                            <div class="section-label">
+                                            7.2 Keselamatan Kesehatan Kerja dan Lingkungan (K3L) di UPPS.
+                                    </div>
+                <div class="content">
+                    <p><i>(Belum ada narasi)</i></p>
+                </div>
+                    </div>
+        
+                    <div class="page-break"></div>
+                    <div style="margin-left: 20pt;">
+            <div class="kriteria-title">
+                                    C.8 MAHASISWA DAN LUARAN MAHASISWA
+                            </div>
+            
+            
+                            <div class="section-label">
+                                            8.1 a. Jumlah Mahasiswa Aktif dan Kualitas Masukan.
+                                    </div>
+                <div class="content">
+                    <p><i>(Belum ada narasi)</i></p>
+                </div>
+                            <div class="section-label">
+                                            8.2 b. IPK Lulusan dan Prestasi Mahasiswa (Akademik/Non-akademik).
+                                    </div>
+                <div class="content">
+                    <p><i>(Belum ada narasi)</i></p>
+                </div>
+                            <div class="section-label">
+                                            8.3 c. Masa Studi Lulusan dan Waktu Tunggu Bekerja.
+                                    </div>
+                <div class="content">
+                    <p><i>(Belum ada narasi)</i></p>
+                </div>
+                            <div class="section-label">
+                                            8.4 d. Daya Saing Lulusan dan Kepuasan Pengguna.
+                                    </div>
+                <div class="content">
+                    <p><i>(Belum ada narasi)</i></p>
+                </div>
+                    </div>
+        
+                    <div class="page-break"></div>
+                    <div style="margin-left: 20pt;">
+            <div class="kriteria-title">
+                                    C.9 PENJAMINAN MUTU
+                            </div>
+            
+            
+                            <div class="section-label">
+                                            9.1 a. Ketersediaan Dokumen/Buku SPMI (Kebijakan, Manual, Standar).
+                                    </div>
+                <div class="content">
+                    <p><i>(Belum ada narasi)</i></p>
+                </div>
+                            <div class="section-label">
+                                            9.2 b. Pelaksanaan Siklus PPEPP dan Hasil Audit Internal.
+                                    </div>
+                <div class="content">
+                    <p><i>(Belum ada narasi)</i></p>
+                </div>
+                    </div>
+        
+            
+    </body>
+</html>

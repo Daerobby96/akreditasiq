@@ -134,7 +134,9 @@ class AiAudit extends Component
             'ban-pt' => 'BAN-PT (9 Kriteria)',
             'lam-emba' => 'LAMEMBA (Akreditasi Bisnis)',
             'lam-infokom' => 'LAM-INFOKOM (Komputasi)',
-            'lam-ptkes' => 'LAM-PTKes (Health)'
+            'lam-ptkes' => 'LAM-PTKes (Health)',
+            'lam-teknik' => 'LAM Teknik (Akreditasi Teknik)',
+            'lamdik' => 'LAMDIK (Akreditasi Kependidikan)'
         ];
 
         return $lams[$this->prodi->lam_type] ?? strtoupper($this->prodi->lam_type);

@@ -9,24 +9,27 @@
         }
         body {
             font-family: 'Arial', sans-serif;
-            line-height: 1.15;
+            line-height: 1.5;
             color: #000;
             font-size: 11pt;
             text-align: justify;
         }
         .header-text {
+            @if(!isset($isDocx))
             position: fixed;
             top: -1.5cm;
+            @endif
             left: 0;
             right: 0;
             font-size: 9pt;
             border-bottom: 1px solid #000;
             padding-bottom: 5px;
             font-style: italic;
+            margin-bottom: 20px;
         }
         .cover {
             text-align: center;
-            margin-top: 3cm;
+            margin-top: 2cm;
         }
         .cover h1 {
             font-size: 18pt;
@@ -35,7 +38,7 @@
         }
         .cover h2 {
             font-size: 14pt;
-            margin-bottom: 2cm;
+            margin-bottom: 1cm;
         }
         .logo-placeholder {
             width: 150px;
@@ -50,13 +53,14 @@
         }
         .page-break {
             page-break-after: always;
+            clear: both;
         }
         .bab-title {
-            font-size: 12pt;
+            font-size: 14pt;
             font-weight: bold;
             text-align: center;
-            margin-top: 2cm;
-            margin-bottom: 1cm;
+            margin-top: 50px;
+            margin-bottom: 30px;
             text-transform: uppercase;
         }
         .kriteria-title {
@@ -70,6 +74,7 @@
             margin-top: 10pt;
             margin-bottom: 5pt;
         }
+        @if(!isset($isDocx))
         .footer {
             position: fixed;
             bottom: -1.5cm;
@@ -78,6 +83,7 @@
             font-size: 10pt;
             text-align: right;
         }
+        @endif
         table {
             width: 100%;
             border-collapse: collapse;
@@ -85,21 +91,30 @@
         }
         th, td {
             border: 1px solid #000;
-            padding: 6px;
+            padding: 8px;
+            vertical-align: top;
+        }
+        th {
+            background-color: #f3f4f6;
         }
     </style>
 </head>
 <body>
     <div class="header-text">
         @if($lamType === 'LAM-EMBA')
-            Dokumen Evaluasi Diri (DED) LAMEMBA - {{ date('Y') }}
+            Dokumen Evaluasi Diri (DED) {{ $settings->nama_institusi ?? 'LAMEMBA' }} - {{ date('Y') }}
         @else
-            Laporan Evaluasi Diri (LED) {{ $lamType }} 2.1 - 2025
+            Laporan Evaluasi Diri (LED) {{ $settings->nama_institusi ?? $lamType }} - {{ date('Y') }}
         @endif
     </div>
 
     <div class="cover">
-        <div class="logo-placeholder">LOGO PERGURUAN TINGGI</div>
+        @if($settings && $settings->logo_path)
+            <img src="{{ public_path('storage/' . $settings->logo_path) }}" style="height: 120px; margin-bottom: 30px;">
+        @else
+            <div class="logo-placeholder">LOGO PERGURUAN TINGGI</div>
+        @endif
+
         @if($lamType === 'LAM-EMBA')
             <h1>DOKUMEN EVALUASI DIRI</h1>
             <h1>PENGAJUAN UNTUK STATUS TERAKREDITASI UNGGUL</h1>
@@ -109,16 +124,18 @@
         @endif
         
         <h2 style="margin-top: 1cm">PROGRAM STUDI {{ strtoupper($prodi->nama) }}</h2>
-        <h2>{{ strtoupper($prodi->fakultas ?? 'FAKULTAS TEKNIK') }}</h2>
-        <h2>{{ strtoupper(config('app.name')) }}</h2>
-        <h2 style="margin-top: 2cm">KOTA .................., TAHUN {{ date('Y') }}</h2>
+        <h2>{{ strtoupper($prodi->fakultas ?? 'FAKULTAS') }}</h2>
+        <h2>{{ strtoupper($settings->nama_institusi ?? 'UNIVERSITAS') }}</h2>
+        <h2 style="margin-top: 2cm">{{ strtoupper($settings->kota ?? 'KOTA') }}, TAHUN {{ date('Y') }}</h2>
     </div>
 
     <div class="page-break"></div>
 
+    @if(!isset($isDocx))
     <div class="footer">
         <span class="pagenum"></span>
     </div>
+    @endif
 
     <div class="bab-title">BAGIAN KEDUA<br>
         @if($lamType === 'LAM-EMBA')
@@ -157,11 +174,8 @@
             @php 
                 $narasi = $k->narasis->first();
                 $content = $narasi->content ?? [];
-                // Get default sections if template_narasi is null
-                // Note: We use the same method logic as in Led.php component
                 $sections = $k->template_narasi;
                 if (!$sections) {
-                    // Manual fallbacks matching the getDefaultSections logic
                     if ($lamType === 'LAM-EMBA') {
                         $kode = (string)$k->kode;
                         $embaTemplates = [
@@ -205,6 +219,7 @@
         @endif
     @endforeach
 
+    @if(!isset($isDocx))
     <script type="text/php">
         if (isset($pdf)) {
             $text = "{PAGE_NUM} / {PAGE_COUNT}";
@@ -216,5 +231,6 @@
             $pdf->page_text($x, $y, $text, $font, $size);
         }
     </script>
+    @endif
 </body>
 </html>

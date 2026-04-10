@@ -66,10 +66,10 @@
         <!-- Progress Timeline -->
         <div class="p-6 glass-card group">
             <div class="flex items-center justify-between mb-4">
-                <div class="flex items-center justify-center w-12 h-12 rounded-xl bg-pink-100 dark:bg-pink-900/30 text-pink-600 dark:text-pink-400 group-hover:scale-110 group-hover:rotate-6 transition-all">
+                <div class="flex items-center justify-center w-12 h-12 rounded-xl bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 group-hover:scale-110 group-hover:rotate-6 transition-all">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z"></path></svg>
                 </div>
-                <span class="text-xs font-bold text-pink-500">PROGRESS</span>
+                <span class="text-xs font-bold text-blue-500">PROGRESS</span>
             </div>
             <h3 class="text-3xl font-bold text-slate-900 dark:text-white">{{ $progressPercentage }}%</h3>
             <div class="w-full h-1.5 bg-slate-200 dark:bg-slate-800 rounded-full mt-3">
@@ -124,7 +124,7 @@
                 <!-- Workflow Activity Chart -->
                 <div class="p-6 glass-card">
                     <h3 class="text-lg font-bold text-slate-900 dark:text-white mb-4 flex items-center">
-                        <span class="w-2 h-2 rounded-full bg-pink-500 mr-2"></span>
+                        <span class="w-2 h-2 rounded-full bg-blue-500 mr-2"></span>
                         Aktivitas Workflow (7 Hari)
                     </h3>
                     <div id="workflow-activity-chart" class="h-64"></div>
@@ -248,7 +248,7 @@
                 const workflowOptions = {
                     series: [{ name: 'Aktivitas', data: workflowData.map(item => item.activities) }],
                     chart: { type: 'bar', height: 250, toolbar: { show: false } },
-                    colors: ['#EC4899'],
+                    colors: ['#3B82F6'],
                     xaxis: { categories: workflowData.map(item => item.date) },
                     tooltip: { theme: 'dark' }
                 };

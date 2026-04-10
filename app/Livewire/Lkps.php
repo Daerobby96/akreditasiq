@@ -10,17 +10,11 @@ class Lkps extends Component
     public $selectedLam;
     public $activeTab;
     public $prodi;
-    public $availableLams = [
-        'ban-pt' => 'BAN-PT',
-        'lam-infokom' => 'LAM-INFOKOM',
-        'lam-ptkes' => 'LAM-PTKes',
-        'lam-emba' => 'LAMEMBA'
-    ];
-
     public $dynamicTables = [];
     public $activeTableId = null;
     public $tableData = [];
     public $editingId = null;
+    public $showPreview = false;
     public $editBuffer = [];
 
     public function mount()
@@ -60,13 +54,6 @@ class Lkps extends Component
         }
     }
 
-    public function setLam($lam)
-    {
-        $this->selectedLam = $lam;
-        $this->loadDynamicTables();
-        $this->loadTableData();
-        $this->cancelEdit();
-    }
 
     public function setTab($slug)
     {
@@ -159,17 +146,45 @@ class Lkps extends Component
         $currentIndex = $this->dynamicTables->search(fn($t) => $t->slug === $this->activeTab);
         $totalTables = $this->dynamicTables->count();
         
-        // Define INFOKOM Grouping Logic (Simplified Mapping)
-        $groupedTables = [
-            'C2: Tata Pamong & Kerjasama' => $this->dynamicTables->filter(fn($t) => preg_match('/tabel_1_/', $t->slug)),
-            'C3: Mahasiswa' => $this->dynamicTables->filter(fn($t) => preg_match('/tabel_[2-3]_/', $t->slug)),
-            'C4: Sumber Daya Manusia' => $this->dynamicTables->filter(fn($t) => preg_match('/tabel_[4-9]_|tabel_10_/', $t->slug)),
-            'C5: Keuangan & Sarana' => $this->dynamicTables->filter(fn($t) => preg_match('/tabel_19_/', $t->slug)),
-            'C6: Pendidikan' => $this->dynamicTables->filter(fn($t) => preg_match('/tabel_20_|tabel_21_/', $t->slug)),
-            'C7: Penelitian' => $this->dynamicTables->filter(fn($t) => preg_match('/tabel_11_|tabel_13_|tabel_14_|tabel_15_|tabel_16_|tabel_17_/', $t->slug)),
-            'C8: Pengabdian Masyarakat' => $this->dynamicTables->filter(fn($t) => preg_match('/tabel_12_|tabel_18_/', $t->slug)),
-            'C9: Luaran & Capaian' => $this->dynamicTables->filter(fn($t) => preg_match('/tabel_22_|tabel_23_|tabel_24_|tabel_25_|tabel_26_|tabel_27_|tabel_28_|tabel_29_|tabel_30_|tabel_31_/', $t->slug)),
-        ];
+        // Define Grouping Logic
+        if ($this->selectedLam === 'lam-infokom') {
+            $groupedTables = [
+                '1. Budaya Mutu' => $this->dynamicTables->filter(fn($t) => preg_match('/tabel_1_/', $t->slug)),
+                '2. Relevansi Pendidikan' => $this->dynamicTables->filter(fn($t) => preg_match('/tabel_2_/', $t->slug)),
+                '3. Relevansi Penelitian' => $this->dynamicTables->filter(fn($t) => preg_match('/tabel_3_/', $t->slug)),
+                '4. Relevansi PkM' => $this->dynamicTables->filter(fn($t) => preg_match('/tabel_4_/', $t->slug)),
+                '5. Akuntabilitas' => $this->dynamicTables->filter(fn($t) => preg_match('/tabel_5_/', $t->slug)),
+                '6. Diferensiasi Misi' => $this->dynamicTables->filter(fn($t) => preg_match('/tabel_6_/', $t->slug)),
+            ];
+        } elseif ($this->selectedLam === 'lam-emba') {
+            $groupedTables = [
+                'A. Sumber Daya Manusia' => $this->dynamicTables->filter(fn($t) => preg_match('/tabel_[1-5]_/', $t->slug)),
+                'B. Keuangan' => $this->dynamicTables->filter(fn($t) => preg_match('/tabel_6_/', $t->slug)),
+                'C. Luaran dan Capaian Tridharma' => $this->dynamicTables->filter(fn($t) => preg_match('/tabel_([7-9]|1[0-9]|2[0-3])_/', $t->slug)),
+            ];
+        } elseif ($this->selectedLam === 'lam-teknik') {
+            $groupedTables = [
+                '1. Diferensiasi Misi' => $this->dynamicTables->filter(fn($t) => preg_match('/tabel_1_/', $t->slug)),
+                '2. Akuntabilitas' => $this->dynamicTables->filter(fn($t) => preg_match('/tabel_2_/', $t->slug)),
+                '3. Relevansi Pendidikan, Penelitian & PkM' => $this->dynamicTables->filter(fn($t) => preg_match('/tabel_3_/', $t->slug)),
+                '4. Sumber Daya Manusia' => $this->dynamicTables->filter(fn($t) => preg_match('/tabel_4_/', $t->slug)),
+                '5. Sarana, Prasarana & K3L' => $this->dynamicTables->filter(fn($t) => preg_match('/tabel_5_/', $t->slug)),
+                '6. Mahasiswa & Luaran' => $this->dynamicTables->filter(fn($t) => preg_match('/tabel_6_/', $t->slug)),
+                '7. Penjaminan Mutu' => $this->dynamicTables->filter(fn($t) => preg_match('/tabel_7_/', $t->slug)),
+            ];
+        } else {
+            // Default BAN-PT / Other LAM 9-Criteria style
+            $groupedTables = [
+                'C2: Tata Pamong & Kerjasama' => $this->dynamicTables->filter(fn($t) => preg_match('/tabel_1_/', $t->slug)),
+                'C3: Mahasiswa' => $this->dynamicTables->filter(fn($t) => preg_match('/tabel_[2-3]_/', $t->slug)),
+                'C4: Sumber Daya Manusia' => $this->dynamicTables->filter(fn($t) => preg_match('/tabel_[4-9]_|tabel_10_/', $t->slug)),
+                'C5: Keuangan & Sarana' => $this->dynamicTables->filter(fn($t) => preg_match('/tabel_19_/', $t->slug)),
+                'C6: Pendidikan' => $this->dynamicTables->filter(fn($t) => preg_match('/tabel_20_|tabel_21_/', $t->slug)),
+                'C7: Penelitian' => $this->dynamicTables->filter(fn($t) => preg_match('/tabel_11_|tabel_13_|tabel_14_|tabel_15_|tabel_16_|tabel_17_/', $t->slug)),
+                'C8: Pengabdian Masyarakat' => $this->dynamicTables->filter(fn($t) => preg_match('/tabel_12_|tabel_18_/', $t->slug)),
+                'C9: Luaran & Capaian' => $this->dynamicTables->filter(fn($t) => preg_match('/tabel_22_|tabel_23_|tabel_24_|tabel_25_|tabel_26_|tabel_27_|tabel_28_|tabel_29_|tabel_30_|tabel_31_/', $t->slug)),
+            ];
+        }
 
         return view('livewire.lkps', [
             'currentTable' => $currentTable,

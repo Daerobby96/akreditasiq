@@ -6,9 +6,11 @@ use Livewire\Volt\Component;
 new class extends Component {
     public $selectedProdiId;
     public $prodis;
-    public $isOnline = true;
     public $installPrompt = null;
     public $showInstallPrompt = false;
+
+    public $logo_path;
+    public $nama_institusi;
 
     public function mount()
     {
@@ -18,8 +20,11 @@ new class extends Component {
             session(['selected_prodi_id' => $this->selectedProdiId]);
         }
 
-        // Check network status
-        $this->isOnline = !isset($_SERVER['HTTP_OFFLINE']) || $_SERVER['HTTP_OFFLINE'] !== 'true';
+        $setting = \App\Models\Setting::first();
+        if ($setting) {
+            $this->logo_path = $setting->logo_path;
+            $this->nama_institusi = $setting->nama_institusi;
+        }
     }
 
     public function selectProdi($id)
@@ -47,60 +52,23 @@ new class extends Component {
         <div class="flex justify-between h-16">
             <div class="flex items-center">
                 <!-- Logo -->
-                <a href="{{ route('dashboard') }}" wire:navigate class="flex items-center space-x-2 mr-8">
-                    <div class="w-8 h-8 smart-gradient rounded-lg flex items-center justify-center shadow-lg shadow-indigo-500/20">
-                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
+                <a href="{{ route('dashboard') }}" wire:navigate class="flex items-center space-x-3 mr-8 group">
+                    <div class="w-10 h-10 flex items-center justify-center transition-transform group-hover:scale-110">
+                        @if($logo_path)
+                            <img src="{{ asset('storage/' . $logo_path) }}" class="w-full h-full object-contain filter drop-shadow-sm">
+                        @else
+                            <div class="w-9 h-9 smart-gradient rounded-xl flex items-center justify-center shadow-lg shadow-indigo-500/20">
+                                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
+                            </div>
+                        @endif
                     </div>
-                    <span class="text-lg font-extrabold text-slate-900 dark:text-white tracking-tight">AKRE</span>
+                    <div class="flex flex-col">
+                        <span class="text-sm font-black bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-sky-500 dark:from-blue-400 dark:to-sky-400 tracking-tighter leading-none uppercase">AKRE SMART</span>
+                        @if($nama_institusi)
+                            <span class="text-[10px] font-bold text-slate-400 dark:text-slate-500 tracking-tight mt-0.5 line-clamp-1 max-w-[120px]">{{ $nama_institusi }}</span>
+                        @endif
+                    </div>
                 </a>
-
-                <!-- Prodi Switcher -->
-                <div class="hidden md:flex items-center mr-6 border-l border-slate-200 dark:border-slate-800 pl-6">
-                    <x-dropdown align="left" width="64">
-                        <x-slot name="trigger">
-                            <button class="flex items-center space-x-2 px-3 py-1.5 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-indigo-500 transition-all group">
-                                <div class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
-                                <div class="text-left">
-                                    @php $currentProdi = $prodis->firstWhere('id', $selectedProdiId); @endphp
-                                    <div class="text-[10px] font-black text-slate-400 uppercase tracking-tighter leading-none">Program Studi</div>
-                                    <div class="text-xs font-bold text-slate-700 dark:text-slate-200 leading-tight">{{ $currentProdi->nama ?? 'Pilih Prodi...' }}</div>
-                                </div>
-                                <svg class="w-4 h-4 text-slate-400 group-hover:text-indigo-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-                            </button>
-                        </x-slot>
-                        <x-slot name="content">
-                            <div class="px-4 py-2 text-xs font-black text-slate-400 uppercase tracking-widest border-b border-slate-100 dark:border-slate-800 mb-1">Pindah Dashboard Prodi</div>
-                            @foreach($prodis as $p)
-                                <button wire:click="selectProdi({{ $p->id }})" class="w-full text-left px-4 py-2.5 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition-colors group">
-                                    <div class="text-sm font-bold {{ $selectedProdiId == $p->id ? 'text-indigo-600' : 'text-slate-700 dark:text-slate-300' }}">{{ $p->nama }}</div>
-                                    <div class="text-[10px] text-slate-400 font-medium uppercase tracking-tight">{{ $p->jenjang }} • {{ strtoupper($p->lam_type) }}</div>
-                                </button>
-                            @endforeach
-                        </x-slot>
-                    </x-dropdown>
-                </div>
-
-                <!-- PWA Install Prompt & Offline Indicator -->
-                <div class="hidden md:flex items-center space-x-3 mr-4">
-                    <!-- Offline Indicator -->
-                    <div x-data="{ isOnline: @entangle('isOnline') }"
-                         :class="isOnline ? 'bg-emerald-100 text-emerald-800' : 'bg-yellow-100 text-yellow-800'"
-                         class="flex items-center space-x-2 px-3 py-1.5 rounded-full text-xs font-medium">
-                        <div :class="isOnline ? 'bg-emerald-500' : 'bg-yellow-500'"
-                             class="w-2 h-2 rounded-full animate-pulse"></div>
-                        <span x-text="isOnline ? 'Online' : 'Offline'"></span>
-                    </div>
-
-                    <!-- PWA Install Button -->
-                    <button x-show="showInstallPrompt"
-                            x-on:click="$wire.installPWA()"
-                            class="flex items-center space-x-2 px-3 py-1.5 bg-indigo-100 text-indigo-800 rounded-full text-xs font-medium hover:bg-indigo-200 transition-colors">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-                        </svg>
-                        <span>Install App</span>
-                    </button>
-                </div>
 
                 <!-- Desktop Nav Links -->
                 <div class="hidden lg:flex items-center space-x-1">
@@ -134,14 +102,17 @@ new class extends Component {
                         </div>
                     </div>
 
+                    @if(in_array(auth()->user()->role, ['admin', 'asesor', 'user']))
                     <x-nav-link :href="route('ai-audit')" :active="request()->routeIs('ai-audit')" wire:navigate>
                         {{ __('Audit AI') }}
                     </x-nav-link>
+                    @endif
 
                     <x-nav-link :href="route('monitoring')" :active="request()->routeIs('monitoring')" wire:navigate>
                         {{ __('Monitoring') }}
                     </x-nav-link>
 
+                    @if(in_array(auth()->user()->role, ['admin', 'user']))
                     <!-- Dropdown: Templates & Collaboration -->
                     <div class="relative inline-flex items-center" x-data="{ collab: false }">
                         <button @click="collab = !collab" @click.outside="collab = false"
@@ -161,6 +132,7 @@ new class extends Component {
                                 </div>
                                 <div class="text-[10px] text-slate-400">Auto-fill & versioning</div>
                             </a>
+                            @if(auth()->user()->role == 'admin')
                             <div class="border-t border-slate-100 dark:border-slate-800 my-1"></div>
                             <a href="{{ route('team-management') }}" wire:navigate class="block px-4 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 hover:text-emerald-600 transition-colors">
                                 <div class="font-bold flex items-center text-emerald-600">
@@ -171,9 +143,12 @@ new class extends Component {
                                 </div>
                                 <div class="text-[10px] text-slate-400">Atur anggota & hak akses</div>
                             </a>
+                            @endif
                         </div>
                     </div>
+                    @endif
 
+                    @if(auth()->user()->role == 'admin')
                     <!-- Dropdown: Master -->
                     <div class="relative inline-flex items-center" x-data="{ master: false }">
                         <button @click="master = !master" @click.outside="master = false"
@@ -197,13 +172,43 @@ new class extends Component {
                                 <div class="font-bold">Pengaturan Instrumen</div>
                                 <div class="text-[10px] text-slate-400">Custom Tabel & Header LKPS</div>
                             </a>
+                            <a href="{{ route('settings') }}" wire:navigate class="block px-4 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 hover:text-indigo-600 transition-colors">
+                                <div class="font-bold">Identitas Kampus</div>
+                                <div class="text-[10px] text-slate-400">Nama, Logo & Profil Institusi</div>
+                            </a>
                         </div>
                     </div>
+                    @endif
                 </div>
             </div>
 
             <!-- Right Side: User Dropdown -->
             <div class="hidden sm:flex sm:items-center sm:ms-6 space-x-3">
+                <!-- Prodi Switcher (Moved here) -->
+                <div class="hidden md:flex items-center pr-4 border-r border-slate-200 dark:border-slate-800 h-8">
+                    <x-dropdown align="right" width="64">
+                        <x-slot name="trigger">
+                            <button class="flex items-center space-x-2 px-3 py-1.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-all group">
+                                <div class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
+                                <div class="text-left">
+                                    @php $currentProdi = $prodis->firstWhere('id', $selectedProdiId); @endphp
+                                    <div class="text-[10px] font-black text-slate-400 uppercase tracking-tighter leading-none">Program Studi</div>
+                                    <div class="text-xs font-bold text-slate-700 dark:text-slate-200 leading-tight">{{ \Illuminate\Support\Str::limit($currentProdi->nama ?? 'Pilih Prodi...', 20) }}</div>
+                                </div>
+                                <svg class="w-4 h-4 text-slate-400 group-hover:text-indigo-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                            </button>
+                        </x-slot>
+                        <x-slot name="content">
+                            <div class="px-4 py-2 text-xs font-black text-slate-400 uppercase tracking-widest border-b border-slate-100 dark:border-slate-800 mb-1">Pindah Dashboard Prodi</div>
+                            @foreach($prodis as $p)
+                                <button wire:click="selectProdi({{ $p->id }})" class="w-full text-left px-4 py-2.5 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition-colors group">
+                                    <div class="text-sm font-bold {{ $selectedProdiId == $p->id ? 'text-indigo-600' : 'text-slate-700 dark:text-slate-300' }}">{{ $p->nama }}</div>
+                                    <div class="text-[10px] text-slate-400 font-medium uppercase tracking-tight">{{ $p->jenjang }} • {{ strtoupper($p->lam_type) }}</div>
+                                </button>
+                            @endforeach
+                        </x-slot>
+                    </x-dropdown>
+                </div>
                 <x-dropdown align="right" width="48">
                     <x-slot name="trigger">
                         <button class="inline-flex items-center px-3 py-2 rounded-xl text-sm font-bold text-slate-600 dark:text-slate-300 bg-slate-100/80 dark:bg-slate-800/80 hover:bg-slate-200 dark:hover:bg-slate-700 transition-all">
@@ -239,17 +244,7 @@ new class extends Component {
     <div :class="{'block': open, 'hidden': !open}" class="hidden lg:hidden border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900">
         <!-- Mobile Status Bar -->
         <div class="px-4 py-3 border-b border-slate-200 dark:border-slate-800">
-            <div class="flex items-center justify-between">
-                <!-- Network Status -->
-                <div class="flex items-center space-x-2">
-                    <div x-data="{ isOnline: @entangle('isOnline') }"
-                         :class="isOnline ? 'bg-emerald-500' : 'bg-yellow-500'"
-                         class="w-2 h-2 rounded-full"></div>
-                    <span x-data="{ isOnline: @entangle('isOnline') }"
-                          :class="isOnline ? 'text-emerald-600' : 'text-yellow-600'"
-                          class="text-sm font-medium"
-                          x-text="isOnline ? 'Online' : 'Offline'"></span>
-                </div>
+            <div class="flex items-center justify-end">
 
                 <!-- PWA Install Button -->
                 <button x-show="showInstallPrompt"
@@ -309,6 +304,7 @@ new class extends Component {
                 </x-responsive-nav-link>
             </div>
 
+            @if(in_array(auth()->user()->role, ['admin', 'user']))
             <!-- Collaboration Section -->
             <div class="border-t border-slate-200 dark:border-slate-800">
                 <div class="px-4 py-2">
@@ -320,31 +316,30 @@ new class extends Component {
                     </svg>
                     Template Dokumen
                 </x-responsive-nav-link>
-                <x-responsive-nav-link :href="route('data-dukung')" :active="request()->routeIs('documents.edit')" wire:navigate>
-                    <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
-                    </svg>
-                    Editor Kolaboratif
-                </x-responsive-nav-link>
+                @if(auth()->user()->role == 'admin')
                 <x-responsive-nav-link :href="route('team-management')" :active="request()->routeIs('team-management')" wire:navigate>
                     <svg class="w-5 h-5 mr-3 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
                     </svg>
                     Manajemen Tim
                 </x-responsive-nav-link>
+                @endif
             </div>
+            @endif
 
             <!-- Tools Section -->
             <div class="border-t border-slate-200 dark:border-slate-800">
                 <div class="px-4 py-2">
                     <span class="text-xs font-bold text-slate-400 uppercase tracking-widest">Tools</span>
                 </div>
+                @if(in_array(auth()->user()->role, ['admin', 'asesor', 'user']))
                 <x-responsive-nav-link :href="route('ai-audit')" :active="request()->routeIs('ai-audit')" wire:navigate>
                     <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
                     </svg>
                     Audit AI & Scoring
                 </x-responsive-nav-link>
+                @endif
                 <x-responsive-nav-link :href="route('monitoring')" :active="request()->routeIs('monitoring')" wire:navigate>
                     <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>

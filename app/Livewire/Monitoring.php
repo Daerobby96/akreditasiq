@@ -233,26 +233,33 @@ class Monitoring extends Component
         $prodi = \App\Models\Prodi::find($prodiId) ?? \App\Models\Prodi::first();
         $lamType = $prodi->lam_type ?? 'ban-pt';
 
-        $workflows = Workflow::with(['user'])
+        $workflows = Workflow::with(['user', 'trackable'])
+            ->where(function($q) use ($prodiId) {
+                $q->whereHasMorph('trackable', [Dokumen::class], function($query) use ($prodiId) {
+                    $query->where('prodi_id', $prodiId);
+                })->orWhereHasMorph('trackable', [\App\Models\Narasi::class], function($query) use ($prodiId) {
+                    $query->where('prodi_id', $prodiId);
+                });
+            })
             ->orderBy('created_at', 'desc')
             ->limit(30)
             ->get();
 
         $kriterias = Kriteria::where('lam_type', $lamType)->withCount([
-            'dokumens',
-            'dokumens as draft_count' => fn($q) => $q->where('status', 'draft'),
-            'dokumens as submitted_count' => fn($q) => $q->where('status', 'submitted'),
-            'dokumens as review_count' => fn($q) => $q->where('status', 'review'),
-            'dokumens as approved_count' => fn($q) => $q->where('status', 'approved'),
-            'dokumens as revision_count' => fn($q) => $q->where('status', 'revision'),
+            'dokumens' => fn($q) => $q->where('prodi_id', $prodiId),
+            'dokumens as draft_count' => fn($q) => $q->where('status', 'draft')->where('prodi_id', $prodiId),
+            'dokumens as submitted_count' => fn($q) => $q->where('status', 'submitted')->where('prodi_id', $prodiId),
+            'dokumens as review_count' => fn($q) => $q->where('status', 'review')->where('prodi_id', $prodiId),
+            'dokumens as approved_count' => fn($q) => $q->where('status', 'approved')->where('prodi_id', $prodiId),
+            'dokumens as revision_count' => fn($q) => $q->where('status', 'revision')->where('prodi_id', $prodiId),
         ])->orderBy('kode', 'asc')->get();
 
         $statusSummary = [
-            'draft' => Dokumen::where('status', 'draft')->count(),
-            'submitted' => Dokumen::where('status', 'submitted')->count(),
-            'review' => Dokumen::where('status', 'review')->count(),
-            'approved' => Dokumen::where('status', 'approved')->count(),
-            'revision' => Dokumen::where('status', 'revision')->count(),
+            'draft' => Dokumen::where('prodi_id', $prodiId)->where('status', 'draft')->count(),
+            'submitted' => Dokumen::where('prodi_id', $prodiId)->where('status', 'submitted')->count(),
+            'review' => Dokumen::where('prodi_id', $prodiId)->where('status', 'review')->count(),
+            'approved' => Dokumen::where('prodi_id', $prodiId)->where('status', 'approved')->count(),
+            'revision' => Dokumen::where('prodi_id', $prodiId)->where('status', 'revision')->count(),
         ];
         $totalDocs = array_sum($statusSummary);
 

@@ -11,7 +11,9 @@ class InstrumentSetting extends \Livewire\Component
         'ban-pt' => 'BAN-PT',
         'lam-infokom' => 'LAM-INFOKOM',
         'lam-ptkes' => 'LAM-PTKes',
-        'lam-emba' => 'LAMEMBA'
+        'lam-emba' => 'LAMEMBA',
+        'lam-teknik' => 'LAM Teknik',
+        'lamdik' => 'LAMDIK'
     ];
     public $selectedLam = 'ban-pt';
     public $tables = [];

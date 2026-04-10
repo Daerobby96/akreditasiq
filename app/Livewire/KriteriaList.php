@@ -12,7 +12,7 @@ class KriteriaList extends Component
     public $editingId = null;
     public $kode, $nama, $bobot, $lam_type;
     public $selectedLamType = 'ban-pt';
-    public $lamOptions = ['ban-pt', 'lam-infokom', 'lam-emba', 'lam-ptkes'];
+    public $lamOptions = ['ban-pt', 'lam-infokom', 'lam-emba', 'lam-ptkes', 'lam-teknik', 'lamdik'];
 
     public function mount()
     {
