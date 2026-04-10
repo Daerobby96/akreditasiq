@@ -191,7 +191,7 @@ jobs:
         php-version: '8.3'
 
     - name: Install SSH key
-      uses: shivammathur/setup-php@v2
+      uses: shimataro/ssh-key-action@v2
       with:
         key: ${{ secrets.SSH_PRIVATE_KEY }}
         known_hosts: ${{ secrets.KNOWN_HOSTS }}
