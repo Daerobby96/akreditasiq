@@ -14,6 +14,7 @@ class Monitoring extends Component
     public $selectedKriteriaId = null;
     public $aiGuidance = [];
     public $existingTasks = [];
+    public $aiLimit = 7; // Default increased to 7 and made dynamic
 
     public $form = [
         'peringkat_saat_ini' => '',
@@ -77,7 +78,7 @@ class Monitoring extends Component
         } else {
             // 2. Jika belum ada, baru panggil Real AI Groq
             $groq = new \App\Services\GroqService();
-            $this->aiGuidance = $groq->getAccreditationGuidance($k, $prodi);
+            $this->aiGuidance = $groq->getAccreditationGuidance($k, $prodi, $this->aiLimit);
             
             // 3. Simpan ke database agar tidak hilang
             \App\Models\AiGuidance::create([
@@ -103,6 +104,13 @@ class Monitoring extends Component
             ->toArray();
     }
 
+    public function updatedAiLimit()
+    {
+        if ($this->selectedKriteriaId) {
+            $this->refreshAiGuide($this->selectedKriteriaId);
+        }
+    }
+
     public function refreshAiGuide($id)
     {
         $k = \App\Models\Kriteria::find($id);
@@ -110,7 +118,7 @@ class Monitoring extends Component
         $prodi = \App\Models\Prodi::find($prodiId) ?? \App\Models\Prodi::first();
 
         $groq = new \App\Services\GroqService();
-        $this->aiGuidance = $groq->getAccreditationGuidance($k, $prodi);
+        $this->aiGuidance = $groq->getAccreditationGuidance($k, $prodi, $this->aiLimit);
 
         \App\Models\AiGuidance::updateOrCreate(
             ['prodi_id' => $prodi->id, 'kriteria_id' => $id],

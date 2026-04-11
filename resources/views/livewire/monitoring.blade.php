@@ -406,7 +406,13 @@
                         <div class="p-8">
                             <div class="flex items-center space-x-2 mb-8">
                                 <div class="w-1 h-6 bg-indigo-600 rounded-full shadow-[0_0_10px_rgba(79,70,229,0.5)]"></div>
-                                <h3 class="text-sm font-black text-slate-800 dark:text-white uppercase tracking-[0.2em]">Checklist Strategis AI</h3>
+                                <h3 class="text-sm font-black text-slate-800 dark:text-white uppercase tracking-[0.2em] flex-1">Checklist Strategis AI</h3>
+                                <select wire:model.live="aiLimit" class="text-[10px] font-bold bg-slate-50 dark:bg-slate-800 border-none rounded-lg focus:ring-0 cursor-pointer">
+                                    <option value="3">3 Tips</option>
+                                    <option value="5">5 Tips</option>
+                                    <option value="7">7 Tips</option>
+                                    <option value="10">10 Tips</option>
+                                </select>
                             </div>
 
                             <div class="space-y-4">

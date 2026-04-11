@@ -15,7 +15,7 @@ class GroqService
         $this->apiKey = config('services.groq.key');
     }
 
-    public function getAccreditationGuidance($kriteria, $prodi)
+    public function getAccreditationGuidance($kriteria, $prodi, $limit = 5)
     {
         if (!$this->apiKey) {
             return ['API Key Groq Belum Terpasang di .env'];
@@ -30,7 +30,7 @@ class GroqService
             $userPrompt = "Kriteria: {$kriteria->kode} - {$kriteria->nama}. 
             Program Studi: {$prodi->nama}. 
             Standar Akreditasi: {$prodi->lam_type}.
-            Berikan daftar 5 file bukti fisik paling krusial untuk meraih Skor 4 (Unggul).";
+            Berikan daftar {$limit} file bukti fisik paling krusial untuk meraih Skor 4 (Unggul).";
 
             $response = Http::withToken($this->apiKey)
                 ->withOptions(['verify' => false]) // Hindari error SSL di Laragon/Local
