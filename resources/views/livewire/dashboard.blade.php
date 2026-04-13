@@ -1,6 +1,3 @@
-<!-- ApexCharts Script -->
-<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
-
 <div class="px-4 py-8 mx-auto max-w-7xl">
     <!-- Header with Smart Gradient -->
     <header class="flex items-center justify-between mb-12 animate-fade-in animate-duration-700">
@@ -150,32 +147,91 @@
             </div>
         </div>
             
-            <div class="p-6 glass-card">
-                <h3 class="text-lg font-bold text-slate-900 dark:text-white mb-4 flex items-center">
-                    <span class="w-2 h-2 rounded-full bg-indigo-500 mr-2 animate-pulse"></span>
-                    Smart Insights
-                </h3>
-                <div class="space-y-4">
-                    @forelse($insights as $insight)
-                        <div class="p-4 rounded-2xl border flex items-start space-x-3 {{ 
-                            $insight['type'] === 'success' ? 'bg-emerald-50/50 border-emerald-500/10 text-emerald-700' : (
-                            $insight['type'] === 'warning' ? 'bg-amber-50/50 border-amber-500/10 text-amber-700' : 
-                            'bg-rose-50/50 border-rose-500/10 text-rose-700')
-                        }}">
-                            <div class="mt-0.5">
-                                @if($insight['type'] === 'success')
-                                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
-                                @else
-                                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path></svg>
-                                @endif
+            <!-- Smart AI Recommendations Column -->
+            <div class="space-y-8">
+                <!-- Smart Prediction Card -->
+                <div class="p-8 rounded-[2rem] smart-gradient text-white relative overflow-hidden group shadow-2xl shadow-indigo-500/20">
+                    <div class="absolute -top-10 -right-10 w-40 h-40 bg-white/10 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-1000"></div>
+                    <div class="relative z-10">
+                        <div class="flex items-center space-x-2 mb-6">
+                            <div class="w-8 h-8 bg-white/20 rounded-lg backdrop-blur-md flex items-center justify-center">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
                             </div>
-                            <p class="text-xs font-bold leading-relaxed">{{ $insight['message'] }}</p>
+                            <span class="text-[10px] font-black uppercase tracking-widest opacity-80">AI Prediction</span>
                         </div>
-                    @empty
-                        <div class="p-8 text-center border-2 border-dashed border-slate-100 dark:border-slate-800 rounded-2xl">
-                            <p class="text-xs text-slate-400 italic">Belum ada insight baru. Kumpulkan lebih banyak data dokumen untuk mendapatkan saran cerdas.</p>
+                        <h3 class="text-xl font-extrabold mb-2">Estimasi Akreditasi</h3>
+                        <div class="text-4xl font-black mb-4">{{ $predictionRank }}</div>
+                        <div class="h-1.5 w-full bg-white/20 rounded-full mb-4 overflow-hidden">
+                            <div class="h-full bg-white animate-progress-fill rounded-full" style="width: {{ $predictionConfidence }}%"></div>
                         </div>
-                    @endforelse
+                        <p class="text-xs text-white/70 leading-relaxed font-bold">
+                            @if($predictionRank == 'DATA MINIM')
+                                Data belum mencukupi untuk melakukan prediksi akurat. Unggah lebih banyak dokumen bukti fisik.
+                            @else
+                                Prediksi berdasarkan rata-rata skor AI ({{ $avgScore }}) dan kelengkapan data ({{ $progressPercentage }}%). Predikat ini bersifat simulasi awal.
+                            @endif
+                        </p>
+                    </div>
+                </div>
+
+                <div class="p-6 glass-card">
+                    <div class="flex items-center justify-between mb-6">
+                        <h3 class="text-lg font-bold text-slate-900 dark:text-white flex items-center">
+                            <span class="w-2 h-2 rounded-full bg-indigo-500 mr-2 animate-pulse"></span>
+                            Smart Insights
+                        </h3>
+                        <button class="text-[10px] font-black text-indigo-600 dark:text-indigo-400 uppercase tracking-widest hover:underline">Refresh AI</button>
+                    </div>
+                    <div class="space-y-4">
+                        @forelse($insights as $insight)
+                            <div class="p-4 rounded-2xl border flex items-start space-x-3 transition-all hover:bg-white dark:hover:bg-slate-800 {{ 
+                                $insight['type'] === 'success' ? 'bg-emerald-50/50 border-emerald-500/10 text-emerald-700' : (
+                                $insight['type'] === 'warning' ? 'bg-amber-50/50 border-amber-500/10 text-amber-700' : 
+                                'bg-rose-50/50 border-rose-500/10 text-rose-700')
+                            }}">
+                                <div class="mt-0.5 flex-shrink-0">
+                                    @if($insight['type'] === 'success')
+                                        <div class="w-5 h-5 bg-emerald-100 dark:bg-emerald-900/30 rounded-lg flex items-center justify-center">
+                                            <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
+                                        </div>
+                                    @else
+                                        <div class="w-5 h-5 bg-amber-100 dark:bg-amber-900/30 rounded-lg flex items-center justify-center">
+                                            <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path></svg>
+                                        </div>
+                                    @endif
+                                </div>
+                                <p class="text-[11px] font-extrabold leading-relaxed  tracking-tight">{{ $insight['message'] }}</p>
+                            </div>
+                        @empty
+                            <div class="p-8 text-center border-2 border-dashed border-slate-100 dark:border-slate-800 rounded-2xl">
+                                <p class="text-xs text-slate-400 italic">Belum ada insight baru. Kumpulkan lebih banyak data dokumen untuk mendapatkan saran cerdas.</p>
+                            </div>
+                        @endforelse
+                    </div>
+
+                    <div class="mt-8 pt-6 border-t border-slate-100 dark:border-slate-800">
+                        <button 
+                            wire:click="askAssistant"
+                            wire:loading.attr="disabled"
+                            wire:target="askAssistant"
+                            class="w-full py-4 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-xl font-bold text-xs uppercase tracking-widest flex items-center justify-center group transform transition-all active:scale-95 shadow-lg disabled:opacity-50 disabled:cursor-wait">
+                            <svg wire:loading.class="animate-spin" wire:target="askAssistant" class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                            <span wire:loading.remove wire:target="askAssistant">Tanya Smart Assistant</span>
+                            <span wire:loading wire:target="askAssistant">Menganalisis Data Dashboard...</span>
+                        </button>
+
+                        @if($smartResponse)
+                            <div class="mt-6 p-5 bg-indigo-50 dark:bg-indigo-900/20 rounded-2xl border border-indigo-100 dark:border-indigo-800 animate-fade-in">
+                                <div class="flex items-center space-x-2 mb-3">
+                                    <div class="w-2 h-2 rounded-full bg-indigo-500 animate-pulse"></div>
+                                    <span class="text-[10px] font-black text-indigo-600 dark:text-indigo-400 uppercase tracking-widest">Rekomendasi AI</span>
+                                </div>
+                                <div class="text-xs text-slate-700 dark:text-slate-300 leading-relaxed font-medium prose dark:prose-invert max-w-none">
+                                    {!! Str::markdown($smartResponse) !!}
+                                </div>
+                            </div>
+                        @endif
+                    </div>
                 </div>
             </div>
         </div>

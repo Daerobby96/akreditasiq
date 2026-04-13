@@ -59,7 +59,44 @@ class GroqService
 
         } catch (\Exception $e) {
             Log::error('Groq Service Exception: ' . $e->getMessage());
-            return ['AI sedang sibuk, silakan coba beberapa saat lagi.'];
+        }
+    }
+
+    public function chat(array $messages)
+    {
+        if (!$this->apiKey) {
+            return 'API Key Groq Belum Terpasang di .env';
+        }
+
+        try {
+            $systemPrompt = "Anda adalah AKRE SMART AI, asisten cerdas khusus akreditasi perguruan tinggi di Indonesia. 
+            Anda ahli dalam instrumen BAN-PT, LAM Teknik, LAMEMBA, LAMINfokom, dan LAMDIK.
+            Berikan jawaban yang ramah, profesional, dan solutif dalam Bahasa Indonesia.
+            Jika ditanya hal di luar akreditasi, arahkan kembali dengan sopan.";
+
+            $response = Http::withToken($this->apiKey)
+                ->withOptions(['verify' => false])
+                ->timeout(15)
+                ->post($this->baseUrl, [
+                    'model' => config('services.groq.model', 'llama-3.3-70b-versatile'),
+                    'messages' => array_merge(
+                        [['role' => 'system', 'content' => $systemPrompt]],
+                        $messages
+                    ),
+                    'temperature' => 0.7,
+                    'max_tokens' => 1000,
+                ]);
+
+            if ($response->successful()) {
+                return $response->json('choices.0.message.content');
+            }
+
+            Log::error('Groq API Chat Error: ' . $response->body());
+            return 'Terjadi gangguan koneksi ke asisten AI Groq.';
+
+        } catch (\Exception $e) {
+            Log::error('Groq Chat Exception: ' . $e->getMessage());
+            return 'AI sedang sibuk, silakan coba beberapa saat lagi.';
         }
     }
 }

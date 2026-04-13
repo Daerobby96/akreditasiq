@@ -9,7 +9,13 @@ Route::get('auth/google', [GoogleController::class, 'redirectToGoogle'])->name('
 Route::get('auth/google/callback', [GoogleController::class, 'handleGoogleCallback']);
 
 Route::get('/', function () {
-    return view('welcome');
+    $stats = [
+        'docs' => \App\Models\Dokumen::count(),
+        'prodis' => \App\Models\Prodi::count(),
+        'criteria' => \App\Models\Kriteria::count(),
+        'categories' => \App\Models\Prodi::distinct('lam_type')->count(),
+    ];
+    return view('welcome', compact('stats'));
 });
 
 Route::get('/offline', function () {

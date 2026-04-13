@@ -14,6 +14,8 @@ class Dashboard extends Component
     public $totalDocs;
     public $avgScore;
     public $progressPercentage;
+    public $predictionRank = 'MENUNGGU DATA';
+    public $predictionConfidence = 0;
     public $prodi;
 
     // Chart data properties
@@ -23,6 +25,8 @@ class Dashboard extends Component
     public $workflowActivityData;
     public $aiAnalysisHeatmap;
     public $insights = [];
+    public $smartResponse = '';
+    public $isAsking = false;
 
     public function mount()
     {
@@ -54,9 +58,35 @@ class Dashboard extends Component
         $this->progressPercentage = $this->totalCriteria > 0
             ? round(($completedCriteria / $this->totalCriteria) * 100)
             : 0;
+
+        $this->calculatePrediction($this->avgScore, $this->progressPercentage);
             
         // Trigger re-render charts di frontend
         $this->dispatch('contentChanged');
+    }
+
+    protected function calculatePrediction($avgScore, $progress)
+    {
+        if ($progress < 10) {
+            $this->predictionRank = 'DATA MINIM';
+            $this->predictionConfidence = $progress;
+            return;
+        }
+
+        $score = (float) $avgScore;
+
+        if ($score >= 3.61) {
+            $this->predictionRank = 'UNGGUL';
+        } elseif ($score >= 3.01) {
+            $this->predictionRank = 'BAIK SEKALI';
+        } elseif ($score >= 2.00) {
+            $this->predictionRank = 'BAIK';
+        } else {
+            $this->predictionRank = 'TIDAK TERAKREDITASI';
+        }
+
+        // Confidence is a mix of progress and score stability
+        $this->predictionConfidence = min(100, round(($progress * 0.7) + (($score / 4) * 30)));
     }
 
     protected function loadChartData($prodi)
@@ -69,6 +99,28 @@ class Dashboard extends Component
         $this->workflowActivityData = $analyticsService->getWorkflowActivityData($prodi);
         $this->aiAnalysisHeatmap = $analyticsService->getAiAnalysisHeatmap($prodi);
         $this->insights = $analyticsService->getAccreditationInsights($prodi);
+    }
+
+    public function askAssistant(\App\Services\GroqService $groq)
+    {
+        $this->isAsking = true;
+        $this->smartResponse = 'Sedang menganalisis data, mohon tunggu...';
+
+        try {
+            $prompt = "Berdasarkan data dashboard saya saat ini (Avg Score: {$this->avgScore}, Progress: {$this->progressPercentage}%), apa prioritas utama yang harus saya kerjakan untuk meningkatkan akreditasi prodi ini? Berikan jawaban singkat, poin-per-poin, dan bahasa yang sangat teknis namun solutif.";
+
+            $messages = [
+                ['role' => 'system', 'content' => 'Anda adalah AKRE SMART AI, konsultan akreditasi prodi.'],
+                ['role' => 'user', 'content' => $prompt]
+            ];
+
+            $response = $groq->chat($messages);
+            $this->smartResponse = $response ?: 'Maaf, asisten AI tidak memberikan jawaban. Silakan coba lagi.';
+        } catch (\Exception $e) {
+            $this->smartResponse = 'Terjadi kesalahan saat menghubungi asisten AI: ' . $e->getMessage();
+        }
+
+        $this->isAsking = false;
     }
 
 

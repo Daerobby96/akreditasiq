@@ -136,6 +136,8 @@ new class extends Component {
                         {{ __('Monitoring') }}
                     </x-nav-link>
 
+
+
                     @if(in_array(auth()->user()->role, ['admin', 'user']))
                     <!-- Dropdown: Templates & Collaboration -->
                     <div class="relative inline-flex items-center" x-data="{ collab: false }">

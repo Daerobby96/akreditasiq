@@ -5,7 +5,8 @@ const OFFLINE_URL = '/offline';
 // Resources to cache immediately
 const STATIC_CACHE_URLS = [
     '/',
-    '/manifest.json'
+    '/manifest.json',
+    OFFLINE_URL
 ];
 
 // Dynamic resources to cache when accessed
@@ -64,8 +65,13 @@ self.addEventListener('fetch', (event) => {
         return;
     }
 
+    // Skip Livewire requests
+    if (event.request.url.includes('/livewire/')) {
+        return;
+    }
+
     // Handle API requests with network-first strategy
-    if (event.request.url.includes('/api/') || event.request.url.includes('/livewire/')) {
+    if (event.request.url.includes('/api/')) {
         event.respondWith(
             fetch(event.request)
                 .then((response) => {
@@ -86,7 +92,13 @@ self.addEventListener('fetch', (event) => {
                                 return cachedResponse;
                             }
                             // Return offline page for failed API calls
-                            return caches.match(OFFLINE_URL);
+                            return caches.match(OFFLINE_URL).then(offlineResponse => {
+                                return offlineResponse || new Response('Network error occurred', {
+                                    status: 503,
+                                    statusText: 'Service Unavailable',
+                                    headers: new Headers({ 'Content-Type': 'text/plain' })
+                                });
+                            });
                         });
                 })
         );
@@ -126,8 +138,20 @@ self.addEventListener('fetch', (event) => {
                     .catch(() => {
                         // Return offline page for navigation requests
                         if (event.request.mode === 'navigate') {
-                            return caches.match(OFFLINE_URL);
+                            return caches.match(OFFLINE_URL).then(offlineResponse => {
+                                return offlineResponse || new Response('Offline mode: Page not available', {
+                                    status: 200,
+                                    headers: new Headers({ 'Content-Type': 'text/html' })
+                                });
+                            });
                         }
+                        
+                        // Default fallback for other resources
+                        return new Response('Resource unavailable offline', {
+                            status: 503,
+                            statusText: 'Service Unavailable',
+                            headers: new Headers({ 'Content-Type': 'text/plain' })
+                        });
                     });
             })
     );

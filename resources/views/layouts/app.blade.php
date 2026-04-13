@@ -32,6 +32,7 @@
 
         <!-- Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
+        <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     </head>
     <body class="font-sans antialiased {{ request()->is('/') ? 'bg-gradient-to-br from-indigo-50 via-white to-purple-50' : 'bg-slate-50 dark:bg-slate-950' }}">
@@ -251,5 +252,8 @@
                 // Custom back button handling if needed
             });
         </script>
+        <!-- Global AI Assistant -->
+        <livewire:chat-assistant />
+
     </body>
 </html>
