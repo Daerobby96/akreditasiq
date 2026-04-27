@@ -36,6 +36,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/kriteria', \App\Livewire\KriteriaList::class)->name('kriteria');
     Route::get('/team-management', \App\Livewire\TeamManagement::class)->name('team-management');
     Route::get('/instrument-setting', \App\Livewire\InstrumentSetting::class)->name('instrument-setting');
+    Route::get('/export', \App\Livewire\LedWriter::class)->name('export');
 
     // Template routes
     Route::get('/templates', \App\Livewire\TemplateManager::class)->name('templates');

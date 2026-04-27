@@ -11,7 +11,7 @@
         
         <!-- Chat Window -->
         <div class="absolute bottom-20 right-0 w-80 sm:w-96 bg-white dark:bg-slate-900 rounded-[2rem] shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden transform transition-all duration-300 {{ $isOpen ? 'scale-100 opacity-100 pointer-events-auto' : 'scale-0 opacity-0 pointer-events-none' }} origin-bottom-right">
-            <div class="p-6 smart-gradient text-white">
+            <div class="p-6 smart-gradient text-white flex items-center justify-between">
                 <div class="flex items-center space-x-3 mb-1">
                     <div class="w-10 h-10 bg-white/20 rounded-xl backdrop-blur-md flex items-center justify-center">
                         <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20"><path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3 3 0 013.75-2.906z"></path></svg>
@@ -24,6 +24,15 @@
                         </div>
                     </div>
                 </div>
+                
+                <button 
+                    wire:click="clearHistory" 
+                    wire:confirm="Hapus semua riwayat percakapan?"
+                    class="p-2 hover:bg-white/20 rounded-lg transition-colors group relative"
+                    title="Hapus Riwayat"
+                >
+                    <svg class="w-5 h-5 opacity-70 group-hover:opacity-100" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                </button>
             </div>
             
             <div id="chat-messages" class="p-6 h-80 overflow-y-auto bg-slate-50 dark:bg-slate-950/50 space-y-4 flex flex-col">

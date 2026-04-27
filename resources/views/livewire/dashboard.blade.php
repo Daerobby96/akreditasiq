@@ -20,7 +20,7 @@
     </header>
 
     <!-- Stats Grid -->
-    <div class="grid grid-cols-1 gap-6 mb-12 sm:grid-cols-2 lg:grid-cols-4">
+    <div class="grid grid-cols-1 gap-6 mb-12 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
         <!-- Criteria Count -->
         <div class="p-6 glass-card group">
             <div class="flex items-center justify-between mb-4">
@@ -60,17 +60,31 @@
             <p class="text-sm font-medium text-slate-500">Skor Rata-rata</p>
         </div>
 
-        <!-- Progress Timeline -->
+        <!-- Progress Timeline (Documents) -->
         <div class="p-6 glass-card group">
             <div class="flex items-center justify-between mb-4">
                 <div class="flex items-center justify-center w-12 h-12 rounded-xl bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 group-hover:scale-110 group-hover:rotate-6 transition-all">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z"></path></svg>
                 </div>
-                <span class="text-xs font-bold text-blue-500">PROGRESS</span>
+                <span class="text-xs font-bold text-blue-500">DATA DUKUNG</span>
             </div>
             <h3 class="text-3xl font-bold text-slate-900 dark:text-white">{{ $progressPercentage }}%</h3>
             <div class="w-full h-1.5 bg-slate-200 dark:bg-slate-800 rounded-full mt-3">
-                <div class="h-full rounded-full smart-gradient shadow-[0_0_10px_rgba(79,70,229,0.5)]" style="width: {{ $progressPercentage }}%"></div>
+                <div class="h-full rounded-full bg-blue-500 shadow-[0_0_10px_rgba(59,130,246,0.5)]" style="width: {{ $progressPercentage }}%"></div>
+            </div>
+        </div>
+
+        <!-- Progress LKPS -->
+        <div class="p-6 glass-card group">
+            <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center justify-center w-12 h-12 rounded-xl bg-rose-100 dark:bg-rose-900/30 text-rose-600 dark:text-rose-400 group-hover:scale-110 group-hover:rotate-6 transition-all">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                </div>
+                <span class="text-xs font-bold text-rose-500">DATA LKPS</span>
+            </div>
+            <h3 class="text-3xl font-bold text-slate-900 dark:text-white">{{ $lkpsProgressPercentage }}%</h3>
+            <div class="w-full h-1.5 bg-slate-200 dark:bg-slate-800 rounded-full mt-3">
+                <div class="h-full rounded-full bg-rose-500 shadow-[0_0_10px_rgba(244,63,94,0.5)]" style="width: {{ $lkpsProgressPercentage }}%"></div>
             </div>
         </div>
     </div>

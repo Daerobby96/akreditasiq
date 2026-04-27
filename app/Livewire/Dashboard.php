@@ -28,6 +28,10 @@ class Dashboard extends Component
     public $smartResponse = '';
     public $isAsking = false;
 
+    public $totalLkpsTables;
+    public $filledLkpsTables;
+    public $lkpsProgressPercentage;
+
     public function mount()
     {
         $prodiId = session('selected_prodi_id');
@@ -57,6 +61,16 @@ class Dashboard extends Component
 
         $this->progressPercentage = $this->totalCriteria > 0
             ? round(($completedCriteria / $this->totalCriteria) * 100)
+            : 0;
+
+        // LKPS Progress Calculation
+        $this->totalLkpsTables = \App\Models\LamTable::where('lam_type', $prodi->lam_type)->count();
+        $this->filledLkpsTables = \App\Models\LkpsData::where('prodi_id', $prodi->id)
+            ->distinct('lam_table_id')
+            ->count('lam_table_id');
+        
+        $this->lkpsProgressPercentage = $this->totalLkpsTables > 0
+            ? round(($this->filledLkpsTables / $this->totalLkpsTables) * 100)
             : 0;
 
         $this->calculatePrediction($this->avgScore, $this->progressPercentage);
